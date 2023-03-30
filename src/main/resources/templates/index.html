@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring Board</title>
+</head>
+<body>
+    <header th:include="headerNav.html"></header>
+    <main class="container">
+        <h1 class="my-4">Spring Boot (Mybatis) 로 댓글 게시판 만들기</h1>
+        <h2>📁 maven vs gradle</h2>
+        <h2>📁 객체지향(OOP:Object Oriented Programming) vs 관점지향 언어(AOP:Aspect Oriented Programming)</h2>
+        <ul>
+            <li>객체지향 언어 : 필요할 때 객체를 생성 및 사용</li>
+            <li>관점지향 언어 : 사용할 객체를 관리(container/관리 또는 factory/생성 라고 부른다)
+                                하다가 필요한 곳에 주입(DI)</li>
+            <li>객체지향 언어의 장점1 : 코드작성이 쉽고 흐름이 보인다(순서대로 작성하는 절차적 언어).</li>
+            <li>객체지향 언어의 장점2 : 객체지향언어의 특징 (상속,캡슐화,추상화,정보은닉,다형성)</li>
+            <li>관점지향 언어의 장점 1: 객체를 필요할때마다 생성하지 않기 때문에 메모리를 절약한다.(서버환경에서 유리)</li>
+            <li>관점지향 언어의 장점 2: 공통 관점으로 코드를 분리해서 중복 코드를 줄이고 구조를 단순화 한다.(생산성 증가, 유지보수 쉬움)</li>
+            <li>관점지향 언어의 장점 3: 객체를 주입받기 때문에 (객체를 생성하는 코드가없음) 기능을 동적으로 추가하는 것이 유리</li>
+
+            <li>객체지향 언어의 단점 : 객체를 무분별하게 생성할 가능성이 높다.(GC가 지우긴 하지만 한계가있을것)</li>
+            <li>관점지향 언어의 단점1 : 구현이 어렵고 흐름이 보이지 않는다.(spring 이 어려운 이유..)</li>
+            <li>관점지향 언어의 단점2 : 관점지향을 구현하는 프레임워크(현재는 spring)에 의존적이다.</li>
+        </ul>
+
+        <h2>📁 spring 의 관점지향언어와 MVC 패턴</h2>
+        <ul>
+            <li>자바로 관점지향을 구현했기 때문에 객체지향 언어의 장점을 포함한다.</li>
+            <li>스프링 컨테이너가 객체(@Component)를 관리하고 있다가 @Autowired(생성자로도 가능)로 정의한 필드에 객체 주입</li>
+            <li>객체를 주입한다 라는 것을 Dependency injection 즉, DI 라고 부른다.</li>
+            <li>[MVC 의 C] @Controller : Spring-web 에서 관리하는 객체로 http 통신의 요청과 응답을 처리</li>
+            <li>[MVC 의 M] @Service : db 접속의 트랜젝션(Transaction) 을 관리 </li>
+            <li>[MVC 의 V] Thymeleaf(Template Engine) : src/resources/templates 하위의 html 을 view 로 렌더링 </li>
+            <!--engine: 컴파일러가 별도로 존재. -->
+        </ul>
+
+        <h2>📁 spring-mybatis</h2>
+        <ul>
+            <li>Mybatis 가 xml 로 작성된 sql 을 java 객체로 맵핑</li>
+            <li>Spring-mybatis : spring 에서 Mybatis 를 사용할 수 있도록 최적화 되어있고,
+                sql(session)을 객체로 생성/관리하는 컨테이너(==sessionFactory)를 제공</li>
+            <li>1.Mapper 인터페이스 작성(@Mapper):
+                        Mybatis는  @Mapper 가 정의된 인터페이스를 Mapper.xml에 정의된  sql로 컴포넌트를 생성 </li>
+            <li>2.Mapper xml : sql(Session)을 관리하고 테이블과의 관계를 정의해서 조인을 할 수 있다.</li>
+            <li>3.사용할 곳에서 의존성 주입(DI:dependency injection) 받기 :
+                        session factory 가 @Mapper 로 정의된 인터페이스를 객체로 만들어서 주입</li>
+        </ul>
+        <h3>📗 Spring Mybatis 설정</h3>
+        <ol>
+            <li>DataSource : resources>application.properties(yml) > spring:datasource:(url,username,password,driver-class-name) 작성
+                DataSource : Spring 에서 DB를 접속 관리하는 객체 생성=> Mybatis 컴포넌트에 주입
+            </li>
+            <li>resources 하위에 mapper xml 폴더를 만들고 application.properties에 mybatis: mapper-locations 작성</li>
+            <li>[IntelliJ] MybatisX 플러그인 설치</li>
+            <li>@Mapper 인터페이스 생성 및 추상메서드 정의</li>
+            <li>인터페이스에서 마우스 오른쪽 클릭 > Show Context Action >
+                [MybatisX] Generate mybatis Xml 클릭후 mapper-locations에 지정한 폴더에 xml 생성</li>
+        </ol>
+        <h3>📗 Mapper.xml 정의 방법</h3>
+        <ul>
+            <li>mapper namespace="@Mapper의 타입" : 컴포넌트(컨테이너에서 관리되는 객체)로 생성할 타입 지정</li>
+            <li>id="추상메서드 이름" : 쿼리가 실행될 메서드 정의 </li>
+            <li>select : DQL 을 작성할 때 사용하는 태그 * resultType 또는 resultMap을 작성해야한다.
+                <ul>
+                    <li>select 는 무조건 resultType으로 정의된 객체나 java.util.List를 반환</li>
+                    <li>만약 추상메서드에서 List가 아니라 객체하나만 반환한다고 정의했는데 복수가 반환되면 오류가 뜸</li>
+                    <li>resultType으로 정의된 DTO 필드와 반환되는 테이블의 칼럼과 동일한 이름이 있다면 맵핑해서 반환.</li>
+                    <li>만약 칼럼과 필드명이 다르면 as 로 필드와 같은 이름을 만들거나 resultMap을 정의한다.
+                        (칼럼과 필드명이 다른이유-> 대부분의 DB는 대소문자를 구분하지 않는다.이름 규칙으로 _를 사용, 자바는 변수명의 규칙 낙타표기법을 사용(상수=="_")
+                    </li><!--[as] SELECT *,u_id as uId FROM users WHERE u_id=#{uId}-->
+                    <li>만약 반환되는 타입을 resultMap을 사용한다면 association 이나 collection 으로 정의된 필드는 한번 더 조회한다.(조인처럼동작) </li>
+                </ul>
+            </li>
+            <!--DQL: 질의어 DML:조작어-->
+            <li>delete,update,insert : DML 을 작성할 때 사용 성공한 개수(즉,정수(int,long)) 를 반환</li>
+            <li>mybatis 와 매개변수(preparedStatement)
+                <ul>
+                    <li>Dto의 필드명이나 변수명을  #{} 안에 작성하면 매개변수로 동작한다.</li>
+                    <li>만약 필드명이나 변수명을 사용하고 싶지 않다면 @Param(value="바꿀이름")을 작성하면 된다.</li>
+                    <li>order by에서 필드명을 매개변수로 받아야한다면 ${} 에 작성하면 된다.
+                        ex) order by #{field} -> order by 'b_id' 로 인식해서 동작이 안됨.</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>📗 resultMap</h3>
+        <p>질의(DQL)의 결과를 자바객체(POJO,DTO)에 맵핑하는 역할과 객체간의 연관성을 표현 </p>
+        <ul>
+            <li>객체의 필드와 칼럼 맵핑</li>
+            <li>복합 객체 맵핑 : DTO에 존재하는 복수를 필드를 관계로 맵핑.</li>
+            <li>상속관계 맵핑: DTO의 부모타입으로 맵핑 </li>
+            <li>컬렉션 맵핑 : 해당 테이블과 참조관계에 있는 다른 테이블의 복수의 값을 조회해서 맵핑가능</li>
+            <li>collection(List(=default)|map|set dto가 제네릭으로 반환),association(dto 반환):
+                해당 테이블과 참조관계에 있는 다른 테이블을 조회</li>
+            <li>property : 조회해서 맵핑할 필드</li>
+            <li>select : 조회할 session(sql) id</li>
+            <li>column : 조회할 sql의 파라미터로 제공할 칼럼</li>
+            <li>fetchType : [eager | lazy] 조회할 방식으로 [즉시로딩|지연로딩]을 설정할 수 있다. </li>
+            <li>지연로딩 : collection, association 에 정의한 필드를 (view에서)호출(==트리거)하면 조회한다.호출이없으면 조회X </li>
+            <li>즉시로딩 : 호출이 있지 않아도 조회.</li>
+        </ul>
+    </main>
+
+
+
+</body>
+</html>

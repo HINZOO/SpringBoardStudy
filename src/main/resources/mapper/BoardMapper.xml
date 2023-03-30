@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.acorn.springboardstudy.mapper.BoardMapper">
+    <resultMap id="BoardMap" type="boardDto"><!--파라미터의 값이 달라서 null 값이 출력되지 않도록 설정-->
+        <id column="b_id" property="bId"/>
+        <result column="content" property="content"/>
+        <result column="title" property="title"/>
+        <result column="u_id" property="uId"/>
+        <result column="post_time" property="postTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="status" property="status"/>
+        <result column="view_count" property="viewCount"/>
+        <association property="likes"
+                     select="com.acorn.springboardstudy.mapper.BoardLikeMapper.countStatusByBId"
+                     column="b_id"
+                     fetchType="lazy"
+        />
+        <association property="user"
+                    select="com.acorn.springboardstudy.mapper.UserMapper.findByUId"
+                     column="u_id"
+                     fetchType="lazy"
+                    />
+        <collection property="replies"
+                    select="com.acorn.springboardstudy.mapper.BoardReplyMapper.findByBIdAndParentBrIdIsNull"
+                    column="b_id"
+                    fetchType="lazy"/>
+        <collection property="imgs"
+                    select="com.acorn.springboardstudy.mapper.BoardImgMapper.findByBId"
+                    column="b_id"
+                    fetchType="lazy"/>
+       <!--🍒 복합관계 맵핑 1:N join 을 했을 때
+        <collection property="imges" ofType="BoardImgDto">
+            <id property="biId" column="bi_id"/>
+            <result property="bId" column="b_id"/>
+            <result property="imgPath" column="img_path"/>
+        </collection>
+       -->
+
+        <!--
+        DTO에 변수생성(프로퍼티값과 같아야함)후 등록. select 는 조인할 함수의 주소 입력
+        replies가 select 될때 findByBIdAndParentBrIdIsNull 가 조회되고 그 값이 BoardDto.replies 에 들어간다.
+        column(DB 칼럼명)으로 선언된 b_id를 가지고 하위 댓글 리스트를 가져온다.
+        fetchType="lazy" 이면 호출할 때만(호출이 존재하는지 검색 후) 호출이 있으면 해당 정보를 조회(지연로딩)
+        cf)fetchType="eager"인 경우 호출없이 바로 조회.(즉시조회)
+        ex)리스트에서 댓글이 필요없으면 조회하지 않는다.
+        JOIN 대신에 eager 나 lazy 를 이용하여 선택적으로 사용.
+        -->
+    </resultMap>
+    <!--
+    📁 JOIN
+    resultMap.collection  : 1:N 또는 N:N 관계(리스트)일 때 조회하는 방법
+    resultMap.association  : N:1 또는 1:1 관계일 때 조회하는 방법
+    select="namespace.id" : resultMap 으로 조회할 때 해당 필드로 다른 내역을 조회해서 파싱
+    column="b_id" : 조회할 때 사용할 파라미터의 값
+    fetchType="lazy"  지연로딩(호출이있는지 검색 후 있으면 조회)리스트에서 댓글필요없으면 조회하지않음
+    fetchType="eager" 즉시조회 호출없어도 join
+     -->
+    <!--
+    SELECT  LAST_INSERT_ID : autoincrement 로 방금 생성된 bid
+    useGeneratedKeys="true" : autoincrement 로 pk를 생성한다.
+    keyProperty="bId" : 파라미터로 넘어온 BoardDto 의 bId 를 autoincrement 로 생성된 키를 반환하겠다.
+    =>마지막으로 생성된 파라미터의 값을 bId에 넣겠다.
+    https://mybatis.org/mybatis-3/ko/sqlmap-xml.html
+    -->
+    <insert useGeneratedKeys="true" keyProperty="bId" id="insertOne" parameterType="boardDto">
+        INSERT INTO boards (u_id, title, content) VALUE (#{uId},#{title},#{content})
+    </insert>
+    <update id="updateOne"  parameterType="boardDto">
+        UPDATE boards SET title=#{title},content=#{content} WHERE b_id=#{bId}
+    </update>
+    <update id="updateStatusByBId"  parameterType="boardDto">
+        UPDATE boards SET status=#{status} WHERE b_id=#{bId}
+    </update>
+    
+    <delete id="deleteOne" >/* parameterType 생략 가능*/
+        DELETE FROM boards WHERE b_id=#{bId}
+    </delete>
+    <select id="findAll" resultMap="BoardMap">
+        SELECT * FROM boards
+    </select>
+    <!--[복합관계 맵핑할때 sql]
+    <select id="findAll" resultMap="BoardMap">
+        SELECT * FROM boards b LEFT JOIN board_imgs i USING (b_id);
+    </select>
+    -->
+    <select id="findByBId" resultMap="BoardMap">
+        SELECT * FROM boards WHERE b_id=#{bId}
+    </select>
+</mapper>
