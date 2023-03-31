@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8" xmlns="http://www.thymeleaf.org" >
+    <title>Title</title>
+</head>
+<body>
+<!--
+확장자가 html이고 html 처럼 보이지만 Thymeleaf 동적 페이지이다.(서버사이드)
+👉 동작원리 : 태그의 속성으로 th가 있으면, 실행 후 랜더링 한다.
+-->
+    <header th:include="/headerNav"></header> <!--html 생략가능.-->
+    <main>
+        <div>
+            <form class="mx-auto" action="/user/login.do" method="post" style="width: 450px;">
+                 <h1 class="my-4"> 로그인 폼</h1>
+                <p class="form-floating">
+                    <input type="text" name="uId" value="user01" class="form-control">
+                    <label>아이디</label>
+                </p>
+                <p class="form-floating">
+                    <input type="password" name="pw" value="1234" class="form-control">
+                    <label>패스워드</label>
+                </p>
+                <p calss="form-check">
+                    <input type="checkbox" value="1" name="autoLogin" id="autoLogin" class="form-check-input">
+                    <label for="autoLogin" class="form-check-label">
+                        일주일간 자동로그인
+                    </label>
+                </p>
+                <p class="text-end">
+                <button class="btn btn-outline-primary">로그인</button>
+                <a class="btn btn-outline-success" href="/user/signup.do">회원가입</a>
+                </p>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
