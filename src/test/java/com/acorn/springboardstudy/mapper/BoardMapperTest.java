@@ -8,6 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 @SpringBootTest
 //Junit의 단위테스트는 spring 과 별개로 실행.따라서 객체주입을 받을 수 없는데
 // springBoot 3.0v 부터 @SpringBootTest 을 정의하면 spring 에서 생성하는 객체를 주입받을 수 있다.
@@ -31,7 +33,7 @@ class BoardMapperTest {
         System.out.println("board.getUser() = " + board.getUser());
         System.out.println("board.getImgs() = " + board.getImgs());
         System.out.println("board.getlikes() = " + board.getLikes());
-        Assertions.assertNotNull(board);
+        assertNotNull(board);
 
 
     }
@@ -47,7 +49,7 @@ class BoardMapperTest {
         System.out.println(board);
         int delete=boardMapper.deleteOne(board.getBId());
         System.out.println("delete = " + delete);
-        Assertions.assertEquals(insert+delete,2);
+        assertEquals(insert+delete,2);
     }
 
     @Test
@@ -57,7 +59,7 @@ class BoardMapperTest {
         board.setTitle("수정테스트");
         board.setContent("수정글테스트입니다.");
         int update= boardMapper.updateOne(board);
-        Assertions.assertEquals(update,1);//수정 성공 확인 성공시 1 반환
+        assertEquals(update,1);//수정 성공 확인 성공시 1 반환
         BoardDto updateBoard=boardMapper.findByBId(36);
         System.out.println("updateBoard = " + updateBoard);
     }
@@ -74,9 +76,15 @@ class BoardMapperTest {
         board.setBId(36);
         board.setStatus("REPORT");
         int update= boardMapper.updateStatusByBId(board);
-        Assertions.assertEquals(update,1);//수정 성공 확인 성공시 1 반환
+        assertEquals(update,1);//수정 성공 확인 성공시 1 반환
         BoardDto updateBoard=boardMapper.findByBId(36);
         System.out.println("updateBoard = " + updateBoard);
+    }
+
+    @Test
+    void updateIncrementViewCountByBId() {
+        int updateIncrementViewCountByBId = boardMapper.updateIncrementViewCountByBId(1);
+        assertEquals(updateIncrementViewCountByBId,1);
     }
 }
 //view 하기 전에 user로 조인 board_like 도 join 해서 테스트 진행~~~

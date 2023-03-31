@@ -71,7 +71,10 @@
     <update id="updateStatusByBId"  parameterType="boardDto">
         UPDATE boards SET status=#{status} WHERE b_id=#{bId}
     </update>
-    
+    <update id="updateIncrementViewCountByBId" >
+        UPDATE boards SET view_count=(view_count+1) WHERE b_id=#{bId}
+    </update>
+
     <delete id="deleteOne" >/* parameterType 생략 가능*/
         DELETE FROM boards WHERE b_id=#{bId}
     </delete>

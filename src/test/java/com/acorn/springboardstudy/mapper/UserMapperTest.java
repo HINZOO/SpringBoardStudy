@@ -49,28 +49,54 @@ class UserMapperTest {
     @Test
     @Order(3)
     void findByUIdAndPw() {
+        UserDto findUser=userMapper.findByUIdAndPw(user);
+        assertNotNull(findUser);
     }
 
     @Test
     @Order(4)
     void findUIdByEmailAndPhoneAndName() {
+        String uId= userMapper.findUIdByEmailAndPhoneAndName(user);
+        assertNotNull(uId);
     }
 
     @Test
     @Order(5)
     void updateOne() {
-
+       UserDto user = new UserDto();
+        user.setUId("test00");
+        user.setPw("12345678");
+        user.setBirth("1990-12-27");
+        user.setPhone("test-8888-test");
+        user.setEmail("Test00@test.or.com");
+        user.setName("테스트유저수정");
+        user.setAddress("서울시 강남구");
+        user.setDetailAddress("논현로");
+        user.setGender("MALE");
+        user.setImgPath("/public/imgs/user/test88.jpeg");
+        int updateOne = userMapper.updateOne(user);
+        UserMapperTest.user=userMapper.findByUId(user.getUId());
+        System.out.println("UserMapperTest.user = " + UserMapperTest.user);
+        assertEquals(updateOne,1);
     }
 
 
     @Test
     @Order(6)
     void updatePwByUId() {
+        UserDto user = new UserDto();
+        user.setUId("test00");
+        user.setPw("비밀번호1234");
+        int updatePwByUId= userMapper.updatePwByUId(user);
+        UserMapperTest.user=userMapper.findByUId(user.getUId());
+        System.out.println("UserMapperTest.user = " + UserMapperTest.user);
+        assertEquals(updatePwByUId,1);
     }
     @Order(7)// 빨리 테스트하기 위해서는 동시에 진행하는것이 가장 좋다 (방법이 없으면 순서를 정한다)
     @Test
     void deleteByUIdAndPw() {
         int deleteByUIdAndPw= userMapper.deleteByUIdAndPw(user);
         assertEquals(deleteByUIdAndPw,1);
+
     }
 }

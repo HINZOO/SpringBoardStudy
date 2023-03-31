@@ -15,4 +15,5 @@ public interface BoardMapper {
     int updateOne(BoardDto board);
     int deleteOne(int bId);
     int updateStatusByBId(BoardDto boardDto);
+    int updateIncrementViewCountByBId(int bId);
 }
