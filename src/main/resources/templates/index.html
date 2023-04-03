@@ -1,19 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Spring Board</title>
-</head>
-<body>
-    <header th:include="headerNav.html"></header>
-    <main class="container">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+    <div layout:fragment="content">
         <h1 class="my-4">Spring Boot (Mybatis) 로 댓글 게시판 만들기</h1>
         <h2>📁 maven vs gradle</h2>
         <h2>📁 객체지향(OOP:Object Oriented Programming) vs 관점지향 언어(AOP:Aspect Oriented Programming)</h2>
         <ul>
             <li>객체지향 언어 : 필요할 때 객체를 생성 및 사용</li>
             <li>관점지향 언어 : 사용할 객체를 관리(container/관리 또는 factory/생성 라고 부른다)
-                                하다가 필요한 곳에 주입(DI)</li>
+                하다가 필요한 곳에 주입(DI)</li>
             <li>객체지향 언어의 장점1 : 코드작성이 쉽고 흐름이 보인다(순서대로 작성하는 절차적 언어).</li>
             <li>객체지향 언어의 장점2 : 객체지향언어의 특징 (상속,캡슐화,추상화,정보은닉,다형성)</li>
             <li>관점지향 언어의 장점 1: 객체를 필요할때마다 생성하지 않기 때문에 메모리를 절약한다.(서버환경에서 유리)</li>
@@ -42,10 +39,10 @@
             <li>Spring-mybatis : spring 에서 Mybatis 를 사용할 수 있도록 최적화 되어있고,
                 sql(session)을 객체로 생성/관리하는 컨테이너(==sessionFactory)를 제공</li>
             <li>1.Mapper 인터페이스 작성(@Mapper):
-                        Mybatis는  @Mapper 가 정의된 인터페이스를 Mapper.xml에 정의된  sql로 컴포넌트를 생성 </li>
+                Mybatis는  @Mapper 가 정의된 인터페이스를 Mapper.xml에 정의된  sql로 컴포넌트를 생성 </li>
             <li>2.Mapper xml : sql(Session)을 관리하고 테이블과의 관계를 정의해서 조인을 할 수 있다.</li>
             <li>3.사용할 곳에서 의존성 주입(DI:dependency injection) 받기 :
-                        session factory 가 @Mapper 로 정의된 인터페이스를 객체로 만들어서 주입</li>
+                session factory 가 @Mapper 로 정의된 인터페이스를 객체로 만들어서 주입</li>
         </ul>
         <h3>📗 Spring Mybatis 설정</h3>
         <ol>
@@ -102,9 +99,7 @@
         </ul>
         <h2>webJar</h2>
         <p>Gradle 과 Maven 같은 빌드 및 라이브러리 관리도구에서 클라이언트(js,css) 측 라이브러리를 관리하는 방법</p>
-    </main>
 
+    </div>
 
-
-</body>
 </html>

@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
   <title>Title</title>
 </head>
-<body>
-<th:block th:include="/headerNav"></th:block> <!--html 생략가능.-->
-<main class="container">
+<div layout:fragment="content">
   <form name="signupForm" action="./signup.do"  method="post"  style="width: 500px;margin: 0 auto;">
     <h1 class="my-4">회원 가입</h1>
     <p class="form-floating">
@@ -62,6 +63,5 @@
     </p>
   </form>
 
-</main>
-</body>
+</div>
 </html>

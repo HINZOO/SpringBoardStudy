@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -21,6 +22,69 @@ public class UserController {
     //@GetMapping 으로 정의한 함수 하나하나 가 동적페이지이다.
 
     private UserService userService;
+    @GetMapping("/dropout.do")
+    public String dropoutForm(
+            @SessionAttribute UserDto loginUser){
+        return "/user/dropoutForm";
+    }
+    @PostMapping("/dropout.do")
+    public String dropoutAction(
+            @ModelAttribute UserDto user,
+            @SessionAttribute UserDto loginUser,
+            RedirectAttributes redirectAttributes,
+            HttpSession session
+    ){
+        String msg="회원 탈퇴 실패";
+        String redirectPage="redirect:/user/dropout.do";
+        int dropout=0;
+        try{
+            dropout=userService.dropout(user);
+        }catch (Exception e){
+            log.error(e.getMessage());
+            msg+="에러: "+e.getMessage();
+        }
+        if(dropout>0){
+            msg="이용해주셔서 감사합니다.(회원탈퇴 성공)";
+            redirectPage="redirect:/";
+            session.removeAttribute("loginUser");
+
+        }
+        redirectAttributes.addFlashAttribute("msg",msg);
+        return redirectPage;
+    }
+
+    @GetMapping("/{uId}/modify.do")
+    public String modifyForm(
+            @PathVariable String uId,
+            @SessionAttribute UserDto loginUser,//로그인한 사람만 수정페이지 접근가능
+            Model model ){ //model : 렌더할 뷰에 바로 객체 전달
+        UserDto user=userService.detail(uId);
+        model.addAttribute("user",user);
+        return "/user/modify";
+    }
+    @PostMapping("/modify.do")
+    public String modifyAction(
+            @SessionAttribute UserDto loginUser,
+            @ModelAttribute UserDto user,
+            RedirectAttributes redirectAttributes
+        ){
+        int modify=0;
+        String msg="수정 실패";
+        String redirectPage="redirect:/user/"+user.getUId()+"/modify.do";
+        try{
+            modify=userService.modify(user);
+        }catch (Exception e){
+            log.error(e.getMessage());
+            msg+= "에러"+e.getMessage();
+        }
+        if(modify>0) {
+            redirectPage = "redirect:/user/"+ user.getUId()+"/detail.do";
+            msg = "수정 성공!";
+        }
+        redirectAttributes.addFlashAttribute("msg",msg);
+        return redirectPage;
+    }
+
 
     //로그인한유저만 detail을 보게 하는 법
     //1.filter(interceptor) : 해당 페이지를 요청하기 전에 로그인 했는지 검사
@@ -29,7 +93,7 @@ public class UserController {
     public ModelAndView detail(
             @SessionAttribute(required = false) UserDto loginUser,
             //🔼UserDto loginUser=(UserDto)session.getAttribute("loginUser"); 과 같다.
-            //단 위의 방법은 세션객체를 파라미터 취급(requie=true)하여 오류가 발생시 400에러가 발생
+            //단 위의 방법은 세션객체를 파라미터 취급(required=true)하여 오류가 발생시 400에러가 발생
             @PathVariable String uId,
             ModelAndView modelAndView,
             RedirectAttributes redirectAttributes
@@ -94,7 +158,8 @@ public class UserController {
             UserDto user,//get/set으로 정의된 userDto를 받으면 파라미터를받을 수 있다.
             Integer autoLogin,
             HttpSession session,
-            RedirectAttributes redirectAttributes){
+            RedirectAttributes redirectAttributes,
+            @SessionAttribute(required=false) String redirectPage){
         //🍒redirect로 페이지에 메세지를 보내는 방법
         //1. 파라미터로 ?msg= 로그인 성공(권장X)
                 //redirectAttributes.addAttribute("msg","로그인 성공!");
@@ -115,6 +180,10 @@ public class UserController {
         if(loginUser!=null){
             redirectAttributes.addFlashAttribute("msg","로그인 성공!");
             session.setAttribute("loginUser",loginUser);
+            if(redirectPage!=null){
+                session.removeAttribute("redirectPage");
+                return "redirect:" +redirectPage;
+            }
             return "redirect:/";
             //get을 제외한 다른 메소드는 양식을 제출하거나 ajax 로 페이지를 호출할때만 가능
         }else {

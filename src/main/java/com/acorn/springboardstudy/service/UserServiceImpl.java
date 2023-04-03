@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int modify(UserDto user) {
-        return userMapper.updatePwByUId(user);
+        return userMapper.updateOne(user);
     }
 
     @Override

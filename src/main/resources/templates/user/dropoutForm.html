@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+<title>탈퇴 폼</title>
+</head>
+<!--
+확장자가 html이고 html 처럼 보이지만 Thymeleaf 동적 페이지이다.(서버사이드)
+👉 동작원리 : 태그의 속성으로 th가 있으면, 실행 후 랜더링 한다.
+-->
+
+<div layout:fragment="content">
+    <form class="mx-auto" action="/user/dropout.do" method="post" style="width: 450px;">
+         <h1 class="my-4"> 회원 탈퇴 폼</h1>
+        <p class="form-floating">
+            <input th:value="${session.loginUser.uId}" readonly type="text" name="uId"  class="form-control">
+            <label>아이디</label>
+        </p>
+        <p class="form-floating">
+            <input type="password" name="pw"  class="form-control">
+            <label>패스워드</label>
+        </p>
+
+        <p class="text-end">
+        <button class="btn btn-outline-danger">탈퇴</button>
+        </p>
+    </form>
+</div>
+
+</html>

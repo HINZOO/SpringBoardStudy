@@ -15,8 +15,7 @@ spring:
     driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
     #DriverSpy :테스트시 중간에 개입하여 sql데이터를 훔쳐옴 -> 테스트 할때만 사용
 
-server:
-  port: 8080
+
 
 
 mybatis:
