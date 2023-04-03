@@ -1,14 +1,13 @@
 package com.acorn.springboardstudy.controller;
 
-import com.acorn.springboardstudy.service.UserService;
 import com.acorn.springboardstudy.dto.UserDto;
+import com.acorn.springboardstudy.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
@@ -22,6 +21,67 @@ public class UserController {
     //@GetMapping 으로 정의한 함수 하나하나 가 동적페이지이다.
 
     private UserService userService;
+
+    //로그인한유저만 detail을 보게 하는 법
+    //1.filter(interceptor) : 해당 페이지를 요청하기 전에 로그인 했는지 검사
+    //2.Controller : 해당 페이지에서 로그인 했는지 검사
+    @GetMapping("/{uId}/detail.do")
+    public ModelAndView detail(
+            @SessionAttribute(required = false) UserDto loginUser,
+            //🔼UserDto loginUser=(UserDto)session.getAttribute("loginUser"); 과 같다.
+            //단 위의 방법은 세션객체를 파라미터 취급(requie=true)하여 오류가 발생시 400에러가 발생
+            @PathVariable String uId,
+            ModelAndView modelAndView,
+            RedirectAttributes redirectAttributes
+            ){
+        //ModelAndView : 렌더하는 뷰 설정 및 전달할 객체설정.
+        if(loginUser==null){
+            redirectAttributes.addFlashAttribute("msg","로그인하셔야 이용할 수 있는 페이지 입니다.");
+            modelAndView.setViewName("redirect:/user/login.do");
+            return modelAndView;
+        }
+        UserDto user = userService.detail(uId);
+        modelAndView.setViewName("/user/detail");
+        modelAndView.addObject("user",user);
+        return modelAndView;
+    }
+    @GetMapping("/signup.do")
+    public void signupForm(){}
+
+    @PostMapping("/signup.do")
+    public String signupAction(
+            @ModelAttribute UserDto user,
+            RedirectAttributes redirectAttributes
+    ){
+        //  @ModelAttribute UserDto user, //유저를 쫙 가져온다!
+        //log.info(user.toString()); //파라미터를 잘 받는지 체크
+        int signup=0;
+        String errMsg=null;
+        try{
+            signup=userService.signup(user);
+        }catch (Exception e){
+            log.error(e);
+            errMsg=e.getMessage();
+        }
+        if(signup>0) {
+            redirectAttributes.addFlashAttribute("msg","회원가입을 축하합니다!! 로그인하세요!");
+            return "redirect:/";
+        }else{
+            redirectAttributes.addFlashAttribute("msg","회원가입 실패 에러 :"+errMsg);
+            //상세한 에러정보이기 때문에 개발이 끝나면 삭제...
+            return "redirect:/user/signup.do";
+        }
+    }
+    @GetMapping("/logout.do")
+    public String logoutAction(
+            HttpSession session,
+            RedirectAttributes redirectAttributes
+            ){
+     //session.invalidate();
+        session.removeAttribute("loginUser");
+        redirectAttributes.addFlashAttribute("msg","로그아웃되었습니다.");
+        return "redirect:/";
+    }
 
     //"/user/login.do" 동적페이지 정의
     @GetMapping("/login.do")

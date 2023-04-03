@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Title</title>
+</head>
+<body>
+<th:block th:include="/headerNav"></th:block> <!--html 생략가능.-->
+<main class="container">
+  <form name="signupForm" action="./signup.do"  method="post"  style="width: 500px;margin: 0 auto;">
+    <h1 class="my-4">회원 가입</h1>
+    <p class="form-floating">
+      <input id="uIdInput" type="text" name="uId" class="form-control " placeholder="??">
+      <label>아이디</label>
+    </p>
+    <p class="form-floating">
+      <input type="password" name="pw" class="form-control" placeholder="??">
+      <label>비밀번호</label>
+    </p>
+    <p class="form-floating">
+      <input type="password" name="checkPw" class="form-control" placeholder="??">
+      <label>비밀번호 체크</label>
+    </p>
+    <p class="form-floating">
+      <input type="text" name="name" class="form-control" placeholder="??">
+      <label>이름</label>
+    </p>
+    <p class="input-group">
+      <label class="input-group-text">프로필</label>
+      <input type="file" name="imgPath" class="form-control" placeholder="??">
+    </p>
+    <p class="form-floating">
+      <input type="text" name="phone" class="form-control" placeholder="??">
+      <label>핸드폰</label>
+    </p>
+    <p class="form-floating">
+      <input type="text" name="email" class="form-control" placeholder="??">
+      <label>이메일</label>
+    </p>
+    <p class="form-floating">
+      <input type="date" name="birth" class="form-control" placeholder="??">
+      <label>생일</label>
+    </p>
+    <p class="form-floating">
+      <select class="form-select" name="gender" placeholder="??">
+        <option value="MALE">남자</option>
+        <option value="FEMALE">여자</option>
+        <option value="NONE" selected>없음</option>
+      </select>
+      <label>성별</label>
+    </p>
+    <p class="form-floating">
+      <input type="text" name="address" class="form-control" placeholder="??">
+      <label>주소</label>
+    </p>
+    <p class="form-floating">
+      <input type="text" name="detailAddress" class="form-control" placeholder="??">
+      <label>상세주소</label>
+    </p>
+    <p class="text-end">
+      <button type="reset" class="btn btn-outline-dark">초기화</button>
+      <button class="btn btn-outline-success">회원가입</button>
+    </p>
+  </form>
+
+</main>
+</body>
+</html>

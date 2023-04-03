@@ -35,7 +35,7 @@
           <th:block th:if="${session.loginUser!=null}">
             <li class="breadcrumb-item">
               <a class="nav-link"
-                 th:href="@{'/user/detail.do'(uId=${session.loginUser.uId})}">
+                 th:href="@{'/user/{uId}/detail.do'(uId=${session.loginUser.uId})}">
                 <!--path:variable
                   th:href="@{'/user/{uId}/detail.do'(uId=${session.loginUser.uId})
                   http://localhost:8080/user/user01/detail.do
@@ -54,8 +54,25 @@
   </div>
 </nav>
 <th:block th:if="${msg!=null}">
-  <script th:inline="javascript">
-    alert(`[[${msg}]]`)
+  <div  id="actionModal" class="modal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">ActionMsg</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p th:text="${msg}"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const actionModal=document.getElementById("actionModal");
+    new bootstrap.Modal(actionModal).show();
   </script>
 </th:block>
 </html>
