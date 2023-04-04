@@ -1,7 +1,10 @@
 package com.acorn.springboardstudy.controller;
 
 import com.acorn.springboardstudy.dto.UserDto;
+import com.acorn.springboardstudy.lib.AESEncryption;
 import com.acorn.springboardstudy.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -139,9 +142,24 @@ public class UserController {
     @GetMapping("/logout.do")
     public String logoutAction(
             HttpSession session,
-            RedirectAttributes redirectAttributes
+            RedirectAttributes redirectAttributes,
+            @CookieValue(value = "SPRING_LOGIN_ID",required = false) String loginIdVal,
+            @CookieValue(value = "SPRING_LOGIN_PW",required = false) String loginPwVal,
+            HttpServletResponse resp
             ){
-     //session.invalidate();
+        log.info("SPRING_LOGIN_ID : " +loginIdVal);
+        log.info("SPRING_LOGIN_PW:"+loginPwVal);
+        if(loginIdVal!=null||loginPwVal!=null){
+            Cookie loginId=new Cookie("SPRING_LOGIN_ID","");
+            Cookie loginPw=new Cookie("SPRING_LOGIN_PW","");
+            loginId.setMaxAge(0);
+            loginPw.setMaxAge(0);
+            loginId.setPath("/");
+            loginPw.setPath("/");
+            resp.addCookie(loginId);
+            resp.addCookie(loginPw);
+        }
+        //session.invalidate();
         session.removeAttribute("loginUser");
         redirectAttributes.addFlashAttribute("msg","로그아웃되었습니다.");
         return "redirect:/";
@@ -159,7 +177,8 @@ public class UserController {
             Integer autoLogin,
             HttpSession session,
             RedirectAttributes redirectAttributes,
-            @SessionAttribute(required=false) String redirectPage){
+            @SessionAttribute(required=false) String redirectPage,
+            HttpServletResponse resp) throws Exception {
         //🍒redirect로 페이지에 메세지를 보내는 방법
         //1. 파라미터로 ?msg= 로그인 성공(권장X)
                 //redirectAttributes.addAttribute("msg","로그인 성공!");
@@ -168,8 +187,8 @@ public class UserController {
                 //->세션에 저장되었다가 사용하면 바로 삭제 (눈에보이지않음)
         //3. RedirectAttributes 사용, 2번과정을 자동으로 해줌.
 
-        log.info(user);
-        log.info(autoLogin);
+//        log.info(user);
+//        log.info(autoLogin);
 
         UserDto loginUser = null;
          try{
@@ -178,6 +197,19 @@ public class UserController {
              log.error(e.getMessage());
          }
         if(loginUser!=null){
+            if(autoLogin!=null && autoLogin==1){
+                String encryptIdValue =AESEncryption.encryptValue(loginUser.getUId());
+                String encryptPwValue =AESEncryption.encryptValue(loginUser.getPw());
+
+                Cookie loginId=new Cookie("SPRING_LOGIN_ID",encryptIdValue);
+                Cookie loginPw=new Cookie("SPRING_LOGIN_PW",encryptPwValue);
+                loginId.setPath("/");//유효범위 지정
+                loginPw.setPath("/");
+                loginId.setMaxAge(7*24*60*60);
+                loginPw.setMaxAge(7*24*60*60);
+                resp.addCookie(loginId);
+                resp.addCookie(loginPw);
+            }
             redirectAttributes.addFlashAttribute("msg","로그인 성공!");
             session.setAttribute("loginUser",loginUser);
             if(redirectPage!=null){

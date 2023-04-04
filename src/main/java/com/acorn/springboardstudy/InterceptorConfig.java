@@ -1,5 +1,6 @@
 package com.acorn.springboardstudy;
 
+import com.acorn.springboardstudy.interceptor.AutoLoginInterceptor;
 import com.acorn.springboardstudy.interceptor.LoginCheckInterceptor;
 import com.acorn.springboardstudy.interceptor.MsgRemoveInterceptor;
 import lombok.AllArgsConstructor;
@@ -13,12 +14,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class InterceptorConfig implements WebMvcConfigurer {
     //interface 에 default 속성을 부여하면 강제구현을 하지않는다.
 
+    private AutoLoginInterceptor autoLoginInterceptor;
     private LoginCheckInterceptor loginCheckInterceptor;
     private MsgRemoveInterceptor   msgRemoveInterceptor;
     @Override
     //addInterceptors : Interceptor 설정
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loginCheckInterceptor).order(1)
+       registry.addInterceptor(autoLoginInterceptor).order(1)
+               .addPathPatterns("/**");
+       registry.addInterceptor(loginCheckInterceptor).order(2)
                 .addPathPatterns("/user/**")//   .addPathPatterns(url) url 페이지는 오지않도록 해라.
                 .excludePathPatterns("/user/login.do")//login.do는 제외
                 .excludePathPatterns("/user/signup.do");//login.do는 제외
@@ -26,7 +30,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
         registry.addInterceptor(loginCheckInterceptor).order(1)
         registry.addInterceptor().order(2);
         */
-        registry.addInterceptor(msgRemoveInterceptor).order(2)
+       registry.addInterceptor(msgRemoveInterceptor).order(3)
                 .addPathPatterns("/user/login.do");
     }
 }
