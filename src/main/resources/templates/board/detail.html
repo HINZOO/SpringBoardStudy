@@ -88,8 +88,14 @@
                             <h5 class="card-title" th:text="${b.title}"> 글 제목</h5>
                             <p class="card-text" th:text="${b.content}"> </p>
                             <hr>
-                            <div class="replyCont">
-                                <h6 class="card-title">댓글 리스트</h6>
+                            <h5 class="card-title d-flex justify-content-between">
+                                <span>댓글 리스트</span>
+                                <button type="button" class="btn btn-light"
+                                        th:onclick="loadReplies([[${b.bId}]])">
+                                    새로고침
+                                </button>
+                            </h5>
+                            <div id="replyCont">
                                 <ul class="list-group" >
                                     <li class="list-group-item" th:each="r:${b.replies}">
                                        <th:block th:include="/reply/detail"></th:block>
@@ -124,7 +130,7 @@
                             </div>
                         </div>
                         <hr>
-                        <form name="replyInsertForm" action="/reply/insert.do" method="post" th:if="${session.loginUser!=null}">
+                        <form enctype="multipart/form-data" name="replyInsertForm" action="/reply/insert.do" method="post" th:if="${session.loginUser!=null}">
                             <input type="hidden" name="uId" th:value="${session.loginUser.uId}">
                             <input type="hidden" name="bId" th:value="${b.bId}">
                             <div class="mb-2 row justify-content-end">
@@ -146,6 +152,137 @@
                 </div>
             </div>
         </div>
+        <div id="replyModifyModal" class="modal" tabindex="-1">
+            <div class="modal-dialog">
+                <form class="modal-content" name="replyModifyForm" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="bId">
+                    <input type="hidden" name="brId">
+                    <input type="hidden" name="imgPath">
+                    <div class="modal-header">
+                        <h5 class="modal-title">댓글 수정 폼</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div id="replyModifyModalBody" class="modal-body">
+                     <!--수정폼 위치-->
+                        <p class="form-floating">
+                            <input type="text" name="uId" class="form-control" placeholder="글쓴이" readonly>
+                            <label>글쓴이</label>
+                        </p>
+                        <p>
+                            <img name="imgPath"  src="" alt="댓글원본이미지" class="img-thumbnail">
+                        </p>
+                        <p class="form-floating">
+                            <input type="text" name="parentBrId" class="form-control" placeholder="참조하는 부모댓글" readonly>
+                            <label>참조하는 부모 댓글</label>
+                        </p>
+                        <p>
+                            <input type="file" name="img" class="form-control"></input>
+                        </p>
+                        <p class="form-floating">
+                            <input type="text" name="content" class="form-control" placeholder="내용" >
+                            <label>내용</label>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="removeReplyBtn" type="button" class="btn btn-danger" >삭제</button>
+                        <button type="submit" class="btn btn-primary">수정</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </section>
+    <script th:inline="javascript">
+        const replyModifyModal=new bootstrap.Modal(document.getElementById('replyModifyModal',{}));
+        const replyCont=document.getElementById('replyCont');
+        const removeReplyBtn=document.getElementById('removeReplyBtn');
+        const replyInsertForm=document.forms["replyInsertForm"];
+        const replyModifyForm=document.forms["replyModifyForm"];
+        replyModifyForm.onsubmit=modifyReply;
+        removeReplyBtn.addEventListener("click",removeReply);
+        async function removeReply(){
+            let check=confirm("삭제하시겠습니까?");//t/f
+            let url="/reply/handler.do";
+            let data=new FormData(replyModifyForm);
+            if(check){
+               const resp= await fetch(url,{method:"DELETE",body:data})
+                if(resp.status===200){
+                    const json= await resp.json();
+                    if(json.remove>0){
+                        alert("삭제 성공");
+                        loadReplies(replyModifyForm.bId.value);
+                    }
+                }else{
+                    alert("삭제 실패 status: "+resp.status)
+                }
+            }
+            replyModifyModal.hide();
+        }
+        async function modifyReply(e){
+            e.preventDefault();
+            let url="/reply/handler.do";
+            const data= new FormData(replyModifyForm);
+            const resp=await fetch(url,{method:"PUT",body:data})
+            //method GET, POST 를 제외하고는 RESTAPI(+put/delete/patch)는 ajax로만 호출가능
+            //body:요청본문
+            if(resp.status===200){
+                const json=await resp.json();
+                if(json.modify>0){
+                    alert("수정성공!");
+                    loadReplies(replyModifyForm.bId.value);
+                }
+            }else{
+                alert("수정실패"+resp.status);
+            }
+            replyModifyModal.hide();
+
+        }
+
+        async function loadReplies(bId){
+            let url=`/reply/${bId}/list.do`
+            const resp=await fetch(url);
+            if(resp.status===200){
+                //alert("댓글 리스트 로드 성공!")
+                let text=await resp.text();
+                replyCont.innerHTML=text;
+              }
+        }
+        replyInsertForm.onsubmit=regiterReply;
+        async function regiterReply(e){
+            e.preventDefault();
+            //multipart/form-data 로 지정된 form 은 new FormData(formNode) 객체를 생성해 Body 에 추가하면 파라미터가 전달된다.
+            const data=new FormData(replyInsertForm);
+            let url="/reply/handler.do" //성공하면 register=1, 실패 0
+            const resp=await fetch(url,{method:"POST", body:data});//blob 데이터를 파라미터로 전달
+            if(resp.status===200){
+                const json=await resp.json();
+                //console.log(json);
+                if(json.register>0){
+                    alert("등록성공!")
+                    await loadReplies(replyInsertForm.bId.value);
+                }
+            }else {
+                alert("등록실패 status : "+resp.status);
+            }
+        }
+        async function loadModifyReply(brId){
+            let url=`/reply/${brId}/detail.do`;
+            const resp=await fetch(url);
+            if(resp.status===200){
+                const json=await resp.json();
+                replyModifyForm.querySelectorAll("[name]").forEach((input)=>{
+                   let key=input.name;
+                   // input.value : input type='file' 에는 value 값이 없음
+                    if(key in json){
+                        if(key==="imgPath"){input.src=json[key];}
+                            input.value=json[key];
+                    }
+                });
+                replyModifyModal.show();
+            }else{
+                alert("불러오기 실패 status: "+resp.status)
+            }
+
+        }
+    </script>
 </div>
 </html>

@@ -2,6 +2,7 @@ package com.acorn.springboardstudy.service;
 
 import com.acorn.springboardstudy.dto.BoardDto;
 import com.acorn.springboardstudy.mapper.BoardMapper;
+import com.acorn.springboardstudy.mapper.UserMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,9 +12,19 @@ import java.util.List;
 @AllArgsConstructor
 public class BoardServiceImpl implements BoardService {
     private BoardMapper boardMapper;
+    private UserMapper userMapper;
     @Override
     public List<BoardDto> list() {
         List<BoardDto> list=boardMapper.findAll();
+        return list;
+    }
+
+    @Override
+    public List<BoardDto> list(String loginUserId) {
+        //List<BoardDto> list=boardMapper.findAll(loginUserId);//서브쿼리로 좋아요 불러오기
+        userMapper.setLoginUserId(loginUserId); //로그인한 유저아이디를 mysql 서버의 변수로 등록
+        List<BoardDto> list=boardMapper.findAll();//그 변수로 지연로딩으로 좋아요 불러오기
+        userMapper.setLoginUserIdNull();//사용이 끝나서 삭제
         return list;
     }
 

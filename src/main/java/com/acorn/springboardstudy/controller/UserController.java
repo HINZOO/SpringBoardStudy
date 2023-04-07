@@ -147,8 +147,8 @@ public class UserController {
             @CookieValue(value = "SPRING_LOGIN_PW",required = false) String loginPwVal,
             HttpServletResponse resp
             ){
-        log.info("SPRING_LOGIN_ID : " +loginIdVal);
-        log.info("SPRING_LOGIN_PW:"+loginPwVal);
+       // log.info("SPRING_LOGIN_ID : " +loginIdVal);
+       // log.info("SPRING_LOGIN_PW:"+loginPwVal);
         if(loginIdVal!=null||loginPwVal!=null){
             Cookie loginId=new Cookie("SPRING_LOGIN_ID","");
             Cookie loginPw=new Cookie("SPRING_LOGIN_PW","");

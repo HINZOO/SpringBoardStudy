@@ -10,10 +10,13 @@
         <result column="update_time" property="updateTime"/>
         <result column="status" property="status"/>
         <result column="view_count" property="viewCount"/>
+        <result column="login_user_like_status" property="loginUserLikeStatus"/>
+        <!--colum : 조회 결과의 row 중의 내역 (파라미터를 전달할 수 없다.)-->
+
         <association property="likes"
                      select="com.acorn.springboardstudy.mapper.BoardLikeMapper.countStatusByBId"
                      column="b_id"
-                     fetchType="lazy"
+                     fetchType="eager"
         />
         <association property="user"
                     select="com.acorn.springboardstudy.mapper.UserMapper.findByUId"
@@ -79,7 +82,11 @@
         DELETE FROM boards WHERE b_id=#{bId}
     </delete>
     <select id="findAll" resultMap="BoardMap">
-        SELECT * FROM boards
+        SELECT *
+        <if test="#{loginUserId!=null}">
+               ,(SELECT status FROM board_likes WHERE b_id=boards.b_id AND u_id=#{loginUserId}) login_user_like_status
+        </if>
+        FROM boards
     </select>
     <!--[복합관계 맵핑할때 sql]
     <select id="findAll" resultMap="BoardMap">

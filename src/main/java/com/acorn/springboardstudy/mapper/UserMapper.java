@@ -14,4 +14,7 @@ public interface UserMapper {
     int updateOne(UserDto user);
     int updatePwByUId(UserDto user);//비밀번호변경
     int deleteByUIdAndPw(UserDto user);//아이디와 비밀번호 정보를 받음. 두개이상의 정보를 받을때는 객체오 받는것도 갠춘
+
+    int setLoginUserId(String uId);// mysql에서 사용할 변수 등록
+    int setLoginUserIdNull();
 }

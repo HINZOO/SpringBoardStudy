@@ -31,6 +31,6 @@ public class InterceptorConfig implements WebMvcConfigurer {
         registry.addInterceptor().order(2);
         */
        registry.addInterceptor(msgRemoveInterceptor).order(3)
-                .addPathPatterns("/user/login.do");
+                .addPathPatterns("/**");
     }
 }

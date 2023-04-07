@@ -6,6 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <title>게시판 리스트</title>
+    <script src="/public/js/BoardLIke.js" defer></script>
 </head>
 <!--참고사이트
 아이콘사용
@@ -84,24 +85,8 @@ https://www.webjars.org/
                     </div>
                 </div>
                 <div class="card-footer d-flex align-items-center justify-content-between">
-                    <div class="likesCont">
-                        <a href="#" class="btn btn-sm btn-link" data-bs-toggle="tooltip" data-bs-title="좋아요">
-                            <i class="bi bi-heart fs-4"></i>
-                            <span th:text="${b.likes.like}"></span>
-                        </a>
-                        <a href="#" class="btn btn-sm btn-link" data-bs-toggle="tooltip" data-bs-title="최고야">
-                            <i class="bi bi-hand-thumbs-up fs-4"></i>
-                            <span th:text="${b.likes.best}"></span>
-                        </a>
-                        <a href="#" class="btn btn-sm btn-link" data-bs-toggle="tooltip" data-bs-title="별로야">
-                            <i class="bi bi-emoji-expressionless fs-4"></i>
-                            <span th:text="${b.likes.bad}"></span>
-                        </a>
-                        <a href="#" class="btn btn-sm btn-link" data-bs-toggle="tooltip" data-bs-title="슬퍼요">
-                            <i class="bi bi-emoji-frown fs-4"></i>
-                            <span th:text="${b.likes.sad}"></span>
-                        </a>
-                    </div>
+                    <th:block  th:with="likes=${b.likes}" th:include="/board/likes"> </th:block>
+                    <!--th:with="변수이름=${변수로만들대상}" 지역변수 등록방법-->
                     <div class="viewCont btn btn-sm " data-bs-toggle="tooltip" data-bs-title="조회수">
                         <i class="bi bi-eye fs-4"></i>
                         <span th:text="${b.viewCount}"></span>
@@ -111,4 +96,5 @@ https://www.webjars.org/
         </div>
     </section>
 </div>
+
 </html>
