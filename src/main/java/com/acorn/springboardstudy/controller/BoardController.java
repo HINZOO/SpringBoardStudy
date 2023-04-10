@@ -40,4 +40,9 @@ public class BoardController {
         return "/board/detail";//html
     }
 
+    @GetMapping("/register.do")
+    public void registerForm(@SessionAttribute UserDto loginUser){
+
+    }
+
 }

@@ -1,11 +1,19 @@
 
 async function boardLikeHandler(status,bId){
+    const likeCont=document.getElementById("likeCont"+bId);
+    //console.log(likeCont)
     let url=`/board/like/${status}/${bId}/handler.do`
     const resp=await fetch(url);
     if(resp.status===200){
         const json=await resp.json();
         if(json.handler>0){
-            alert(json.status+""+json.handlerType+"성공!");
+            let html=await readLike(bId);
+            if(html){
+                likeCont.innerHTML=html;
+                alert(json.status+""+json.handlerType+"성공!");
+            }else{
+                alert(json.status+""+json.handlerType+"성공(불러오기실패, 새로고침하세요)");
+            }
         }else{
             alert(json.status+""+json.handlerType+"실패!");
         }
@@ -14,6 +22,14 @@ async function boardLikeHandler(status,bId){
     }
     else{
         alert("실패 status:"+resp.status);
+    }
+}
+async function readLike(bId){//새로고침없이 변환할수있도록
+    let url = `/board/like/${bId}/read.do`;
+    const resp=await fetch(url);
+    if(resp.status===200){
+        const html = await resp.text();
+        return html;
     }
 }
 

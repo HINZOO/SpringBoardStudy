@@ -6,6 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <title>게시판 상세</title>
+    <script src="/public/js/BoardLIke.js" defer></script>
 </head>
 <div layout:fragment="content">
     <h1 class="my-4">게시판 상세</h1>
@@ -106,9 +107,13 @@
                     </div>
                     <div class="card-footer  align-items-center position-sticky bottom-0  bg-light">
                         <div class="d-flex align-items-center">
-                            <th:block th:include="/board/likes" th:with="likes=${b.likes}">
-                                <!--th:with="likes=${b.likes} : likes. html에서 변수를 b.likes가 likes와 같음을 정의-->
-                            </th:block>
+                            <div th:id="'likeCont'+${b.bId}">
+                                <th:block th:if="${session.loginUser!=null}" th:include="/board/loginLikes" th:with="likes=${b.likes},id=${b.bId}"> </th:block>
+                                <th:block th:unless="${session.loginUser!=null}" th:include="/board/likes" th:with="likes=${b.likes}"> </th:block>
+                                    <!--th:with="likes=${b.likes} : likes. html에서 변수를 b.likes가 likes와 같음을 정의-->
+
+
+                            </div>
                             <div class="viewCont btn btn-sm " data-bs-toggle="tooltip" data-bs-title="조회수">
                                 <i class="bi bi-eye fs-4"></i>
                                 <span th:text="${b.viewCount}"></span>

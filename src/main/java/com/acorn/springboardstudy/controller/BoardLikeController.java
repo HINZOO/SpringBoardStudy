@@ -25,12 +25,13 @@ public class BoardLikeController {
             Model model){
         String templatePage;
         LikeStatusCntDto likes;
+        model.addAttribute("id",bId);
         if(loginUser!=null){
-            templatePage="/board/loginLikes";
             likes=boardLikeService.read(bId,loginUser.getUId());
+            templatePage="/board/loginLikes";
         }else{
-            templatePage="/board/likes";
             likes=boardLikeService.read(bId);
+            templatePage="/board/likes";
 
         }
         log.info(likes);

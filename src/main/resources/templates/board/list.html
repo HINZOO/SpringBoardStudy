@@ -15,7 +15,8 @@ https://icons.getbootstrap.com/icons/three-dots/
 https://www.webjars.org/
 -->
 <div layout:fragment="content">
-    <h1 class="my-4">게시판 리스트</h1>
+    <h1 class="my-4">게시판 리스트 </h1>
+
     <section id="boardListCont" class="row row-cols-lg-2 row-cols-1 g-5">
         <div class="col" th:each="b:${boards}">
             <div class="card">
@@ -83,10 +84,12 @@ https://www.webjars.org/
                     </div>
                 </div>
                 <div class="card-footer d-flex align-items-center justify-content-between">
-                    <th:block th:if="${session.loginUser!=null}" th:with="likes=${b.likes}" th:include="/board/loginLikes"> </th:block>
-                    <th:block th:unless="${session.loginUser!=null}" th:with="likes=${b.likes}" th:include="/board/likes"> </th:block>
-                    <!--th:with="변수이름=${변수로만들대상}" 지역변수 등록방법-->
-                    <!--if else thymeleaf :: if, unless  로 작성한다 조건이 같아야함을 주의-->
+                    <div class="likeCont" th:id="'likeCont'+${b.bId}">
+                        <th:block th:if="${session.loginUser!=null}" th:with="likes=${b.likes},id=${b.bId}" th:include="/board/loginLikes"> </th:block>
+                        <th:block th:unless="${session.loginUser!=null}" th:with="likes=${b.likes},id=${bId}" th:include="/board/likes"> </th:block>
+                        <!--th:with="변수이름=${변수로만들대상}" 지역변수 등록방법-->
+                        <!--if else thymeleaf :: if, unless  로 작성한다 조건이 같아야함을 주의-->
+                    </div>
                     <div class="viewCont btn btn-sm" data-bs-toggle="tooltip" data-bs-title="조회수">
                         <i class="bi bi-eye fs-4"></i>
                         <span th:text="${b.viewCount}"></span>

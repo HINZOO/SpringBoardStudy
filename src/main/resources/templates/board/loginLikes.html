@@ -1,27 +1,27 @@
-<div class="likesCont">
+
   <a href="javascript:void(0)"
-     th:onclick="boardLikeHandler('LIKE',[[${likes.id}]])"
+     th:onclick="boardLikeHandler('LIKE',[[${id}]])"
      class="btn btn-sm btn-light text-danger" data-bs-toggle="tooltip" data-bs-title="좋아요">
     <i class="bi  fs-4" th:classappend="${(likes.status=='LIKE')?'bi-heart-fill':'bi-heart'}"></i>
     <span th:text="${likes.like}"></span>
   </a>
   <a href="javascript:void(0)"
-     th:onclick="boardLikeHandler('BEST',[[${likes.id}]])"
+     th:onclick="boardLikeHandler('BEST',[[${id}]])"
      class="btn btn-sm btn-light text-warning" data-bs-toggle="tooltip" data-bs-title="최고야">
     <i class="bi fs-4" th:classappend="${(likes.status=='BEST')?'bi-hand-thumbs-up-fill':'bi-hand-thumbs-up'}"></i>
     <span th:text="${likes.best}"></span>
   </a>
   <a href="javascript:void(0)"
-     th:onclick="boardLikeHandler('BAD',[[${likes.id}]])"
+     th:onclick="boardLikeHandler('BAD',[[${id}]])"
      class="btn btn-sm btn-light text-success" data-bs-toggle="tooltip" data-bs-title="별로야">
     <i class="bi fs-4" th:classappend="${(likes.status=='BAD')?'bi-emoji-expressionless-fill':'bi-emoji-expressionless'}"></i>
     <span th:text="${likes.bad}"></span>
   </a>
   <a href="javascript:void(0)"
-     th:onclick="boardLikeHandler('SAD',[[${likes.id}]])"
+     th:onclick="boardLikeHandler('SAD',[[${id}]])"
      class="btn btn-sm btn-light text-primary" data-bs-toggle="tooltip" data-bs-title="슬퍼요">
     <i class="bi fs-4" th:classappend="${#strings.equals(likes.status,'SAD')?' bi-emoji-frown-fill ':' bi-emoji-frown '}"></i>
     <span th:text="${likes.sad}"></span>
   </a>
 <!--  <span th:text="${b.likes.status}"></span>-->
-</div>
+

@@ -1,4 +1,7 @@
-<div class="likesCont">
+<!--
+a.onclick = 함수 (this==a)
+a.onclick =function(){함수(); this==window} this==a
+-->
   <a href="javascript:void(0)" readonly
      class="btn btn-sm btn-light text-danger disabled"  data-bs-toggle="tooltip" data-bs-title="좋아요">
     <i class="bi bi-heart fs-4" ></i>
@@ -20,4 +23,4 @@
     <span th:text="${likes.sad}"></span>
   </a>
 <!--  <span th:text="${b.likes.status}"></span>-->
-</div>
+
