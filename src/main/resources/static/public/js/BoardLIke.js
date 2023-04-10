@@ -9,7 +9,10 @@ async function boardLikeHandler(status,bId){
         }else{
             alert(json.status+""+json.handlerType+"실패!");
         }
-    }else{
+    }else if(resp.status===400){
+        alert("로그인을 하셔야 이용 가능한 서비스 입니다!(잘못된 요청)")
+    }
+    else{
         alert("실패 status:"+resp.status);
     }
 }

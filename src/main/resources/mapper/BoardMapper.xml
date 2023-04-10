@@ -96,4 +96,7 @@
     <select id="findByBId" resultMap="BoardMap">
         SELECT * FROM boards WHERE b_id=#{bId}
     </select>
+<!--    <select id="findAll" resultMap="BoardMap">-->
+<!--        SELECT *  FROM boards-->
+<!--    </select>-->
 </mapper>
