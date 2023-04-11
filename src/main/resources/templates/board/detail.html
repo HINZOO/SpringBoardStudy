@@ -12,21 +12,7 @@
     <h1 class="my-4">게시판 상세</h1>
     <section id="boardCont" class="">
         <div class="row">
-            <div id="carouselExampleControls2" class="carousel slide d-none d-lg-block col pe-0" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <img src="/public/img/board/a.jpg" class="d-block w-100" alt="게시글 이미지">
-                    </div>
-                </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
-            </div>
+
             <div class="col ps-0 mb-2">
                 <div class="card col" style="height:70vh;overflow:scroll;overflow-x:hidden;overflow-y:auto">
                     <div class="card-header bg-light position-sticky top-0 " style="z-index: 999" >
@@ -45,66 +31,50 @@
                                     (<strong class="ms-2" th:text="${b.user.name}"></strong>)
                                 </div>
                             </div>
-                            <div class="dropdown">
-                                <a href="#" role="button"  class=""  data-bs-toggle="dropdown">
-                                    <i class="bi bi-list fs-4" ></i>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a class="dropdown-item" th:href="@{'/board/{bId}/detail.do'(bId=${b.bId})}">글상세</a>
-                                    </li>
-                                    <li><a class="dropdown-item" href="#">글목록</a></li>
-                                    <li><a class="dropdown-item" href="#" >계정정보</a></li>
-                                    <li>
-                                        <a href="#" class="dropdown-item text-danger">
-                                            <i class="bi bi-bell-fill"></i>
-                                            신고
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
+                            <th:block th:include="/board/dropDownMenu"></th:block>
                         </div>
                     </div>
                     <div class="card-body">
-                        <div id="carouselExampleControls" class="carousel slide d-lg-none" data-bs-ride="carousel">
+                        <div th:if="${b.imgs!=null}" th:id="'carousel'+${b.bId}" class="carousel slide" data-bs-ride="carousel">
                             <div class="carousel-inner">
-                                <div class="carousel-item active">
-                                    <img src="/public/img/board/a.jpg" class="d-block w-100" alt="게시글 이미지">
+                                <div class="carousel-item" th:each="img,state:${b.imgs}" th:classappend="${(state.first)?'active':''}">
+                                    <img th:src="@{'{path}'(path=${img.imgPath})}" class="d-block w-100" alt="게시글 이미지">
                                 </div>
                             </div>
-                            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                            <button class="carousel-control-prev" type="button" th:data-bs-target="'#carousel'+${b.bId}" data-bs-slide="prev">
                                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                 <span class="visually-hidden">Previous</span>
                             </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                            <button class="carousel-control-next" type="button" th:data-bs-target="'#carousel'+${b.bId}" data-bs-slide="next">
                                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                 <span class="visually-hidden">Next</span>
                             </button>
+                     </div>
+
+                    <div>
+                        <div class="text-muted">
+                            <small class="me-1 ms-0">작성일: <span th:text="${#dates.format(b.postTime,'yyyy-MM-dd')}"></span></small>
+                            <small>수정일: <span th:text="${#dates.format(b.updateTime,'yyyy-MM-dd')}"></span></small>
                         </div>
-                        <div>
-                            <div class="text-muted">
-                                <small class="me-1 ms-0">작성일: <span th:text="${#dates.format(b.postTime,'yyyy-MM-dd')}"></span></small>
-                                <small>수정일: <span th:text="${#dates.format(b.updateTime,'yyyy-MM-dd')}"></span></small>
-                            </div>
-                            <h5 class="card-title" th:text="${b.title}"> 글 제목</h5>
-                            <p class="card-text" th:text="${b.content}"> </p>
-                            <hr>
-                            <h5 class="card-title d-flex justify-content-between">
-                                <span>댓글 리스트</span>
-                                <button type="button" class="btn btn-light"
-                                        th:onclick="loadReplies([[${b.bId}]])">
-                                    새로고침
-                                </button>
-                            </h5>
-                            <div id="replyCont">
-                                <ul class="list-group" >
-                                    <li class="list-group-item" th:each="r:${b.replies}">
-                                       <th:block th:include="/reply/detail"></th:block>
-                                    </li>
-                                </ul>
-                            </div>
+                        <h5 class="card-title" th:text="${b.title}"> 글 제목</h5>
+                        <p class="card-text" th:text="${b.content}"> </p>
+                        <hr>
+                        <h5 class="card-title d-flex justify-content-between">
+                            <span>댓글 리스트</span>
+                            <button type="button" class="btn btn-light"
+                                    th:onclick="loadReplies([[${b.bId}]])">
+                                새로고침
+                            </button>
+                        </h5>
+                        <div id="replyCont">
+                            <ul class="list-group" >
+                                <li class="list-group-item" th:each="r:${b.replies}">
+                                   <th:block th:include="/reply/detail"></th:block>
+                                </li>
+                            </ul>
                         </div>
                     </div>
+                </div>
                     <div class="card-footer  align-items-center position-sticky bottom-0  bg-light">
                         <div class="d-flex align-items-center">
                             <div th:id="'likeCont'+${b.bId}">

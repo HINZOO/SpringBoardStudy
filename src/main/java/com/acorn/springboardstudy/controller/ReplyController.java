@@ -31,7 +31,7 @@ public class ReplyController {
     @Value("${img.upload.path}") //application.yml 설정값 가져오기.
 
    private String imgUploadPath;
-    @Value("${img.static.path}") //application.yml 설정값 가져오기.
+    @Value("${static.path}") //application.yml 설정값 가져오기.
     private String staticPath;
 
 

@@ -26,9 +26,9 @@ img:
   upload:
     path: ${user.dir}\SpringBoardStudy\src\main\resources\static\public\img
 
-  static:
-    path: ${user.dir}\SpringBoardStudy\src\main\resources\static
-      #이미지 수정시 주소 중복을 위해 static path를 만듦.
+static:
+  path: ${user.dir}\SpringBoardStudy\src\main\resources\static
+    #이미지 수정시 주소 중복을 위해 static path를 만듦.
 
 
 mybatis:

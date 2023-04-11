@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout}"
+>
+
+<head>
+  <meta charset="UTF-8">
+  <title>글 수정</title>
+  <style>
+    .delImgItem>.delImgInput{/*속성선택자*/
+      display: none;
+    }
+    .delImgItem>.delImgInput:checked+img{/*상태선택자*/
+      background-color: red;
+    }
+  </style>
+</head>
+<div layout:fragment="content">
+  <form name="registerForm"  enctype="multipart/form-data" action="/board/modify.do"  method="post"  style="width: 500px;margin: 0 auto;">
+    <input type="hidden" th:value="${b.bId}" name="bId">
+    <h1 class="my-4">게시글 수정</h1>
+    <p class="form-floating">
+      <input id="uIdInput"  type="text" name="uId" class="form-control" th:value="${b.uId}" placeholder="??" readonly>
+      <label>아이디(글쓴이)</label>
+    </p>
+
+    <p class="form-floating">
+      <input id="titleInput"  type="text" name="title" th:value="${b.title}" class="form-control" placeholder="??">
+      <label>글 제목</label>
+    </p>
+    <p >
+      <label for="contentInput" class="form-label">글 내용</label>
+      <textarea id="contentInput" name="content" value="" rows="4" class="form-control" th:text="${b.content}"></textarea>
+    </p>
+
+    <!--이미지 삭제------------->
+    <p id="imgDelCont">
+      <h4>이미지 삭제(체크)</h4>
+      <label th:each="img,state:${b.imgs}" class="w-25 delImgItem"><!--null체크를 자동으로 해줌-->
+<!--        <input type="checkbox"  th:name="'imgs['+${state.index}+'].biId'" class="delImgInput" th:value="${img.biId}">-->
+        <input type="checkbox"  name="delImgId" class="delImgInput" th:value="${img.biId}">
+        <img th:src="@{'{path}'(path=${img.imgPath})}" class="img-thumbnail">
+      </label>
+    </p>
+    <p id="imgCont">
+      <button id="imgAddBtn" class="btn btn-light w-100"  type="button" >
+        New 이미지
+        <i class="bi bi-plus-square"></i><!--등록은 직접 구현해보기.-->
+      </button>
+    </p>
+    <p class="text-end">
+      <button type="reset"class="btn btn-warning">초기화 </button>
+      <button type="submit"class="btn btn-primary">수정 </button>
+    </p>
+  </form>
+  <script>
+    const imgAddBtn=document.getElementById('imgAddBtn');
+    const imgCont=document.getElementById('imgCont');
+    imgAddBtn.addEventListener("click",(e)=>{
+      imgCont.insertAdjacentHTML("beforeend", imgInputComponent())
+    });
+
+    function imgInputComponent(label="이미지",name="img"){//이 이름과 resgister의 img 이름이 넘어감.
+      return `<p class="input-group mt-2">
+              <label class="input-group-text">${label}</label>
+              <input class="form-control" type="file" name="${name}" >
+              <button type="button" class="btn btn-danger" onclick="this.closest('.input-group').remove()">
+                <i class="bi bi-x-lg"></i>
+              </button>
+              </p>`;
+    }
+  </script>
+</div>
+</html>

@@ -1,6 +1,8 @@
 package com.acorn.springboardstudy.service;
 
 import com.acorn.springboardstudy.dto.BoardDto;
+import com.acorn.springboardstudy.dto.BoardImgDto;
+import com.acorn.springboardstudy.mapper.BoardImgMapper;
 import com.acorn.springboardstudy.mapper.BoardMapper;
 import com.acorn.springboardstudy.mapper.UserMapper;
 import lombok.AllArgsConstructor;
@@ -13,6 +15,7 @@ import java.util.List;
 public class BoardServiceImpl implements BoardService {
     private BoardMapper boardMapper;
     private UserMapper userMapper;
+    private BoardImgMapper boardImgMapper;
     @Override
     public List<BoardDto> list() {
         List<BoardDto> list=boardMapper.findAll();
@@ -39,14 +42,28 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    @Transactional//중간에 실수하면 등록취소
     public int register(BoardDto board) {
-        int register=boardMapper.insertOne(board);
+        int register=0;
+        register=boardMapper.insertOne(board);//bId생성(useGeneratedKeys="true" keyProperty="bId")
+        if(board.getImgs()!=null){
+            for(BoardImgDto img:board.getImgs()){
+                img.setBId(board.getBId());//생성된 bId를 집어넣음
+                register+=boardImgMapper.insertOne(img);
+            }
+        }
         return register;
     }
 
     @Override
-    public int modify(BoardDto board) {
+    @Transactional
+    public int modify(BoardDto board, int[] delImgIds) {
         int modify=boardMapper.updateOne(board);
+        if(delImgIds!=null){
+            for(int biId:delImgIds){
+                modify+=boardImgMapper.deleteOne(biId);
+            }
+        }
         return modify;
     }
 
