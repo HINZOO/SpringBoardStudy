@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.acorn.springboardstudy.mapper.HashTagMapper">
+    <resultMap id="HashTagMap" type="HashTagDto">
+        <id property="tag" column="tag"/>
+    </resultMap>
+
+    <insert id="insertOne">
+        INSERT INTO hashtags (tag) value (#{tag});
+    </insert>
+    <select id="findByTagContains" resultMap="HashTagMap">
+        SELECT * FROM hashtags WHERE tag like CONCAT(#{tag},'%');
+/*mysql 은 + 연산자가 안되서 concat 으로 +를 대체한다.*/
+    </select>
+    <select id="findByTag" resultMap="HashTagMap">
+        SELECT * FROM hashtags WHERE tag=#{tag};
+    </select>
+</mapper>

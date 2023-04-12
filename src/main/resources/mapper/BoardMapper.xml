@@ -31,6 +31,10 @@
                     select="com.acorn.springboardstudy.mapper.BoardImgMapper.findByBId"
                     column="b_id"
                     fetchType="lazy"/>
+        <collection property="tags"
+                    select="com.acorn.springboardstudy.mapper.BoardHashMapper.findByBId"
+                    column="b_id"
+                    fetchType="lazy"/>
        <!--🍒 복합관계 맵핑 1:N join 을 했을 때
         <collection property="imges" ofType="BoardImgDto">
             <id property="biId" column="bi_id"/>

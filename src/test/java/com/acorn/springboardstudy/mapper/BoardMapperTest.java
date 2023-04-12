@@ -1,14 +1,14 @@
 package com.acorn.springboardstudy.mapper;
 
 import com.acorn.springboardstudy.dto.BoardDto;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 //Junit의 단위테스트는 spring 과 별개로 실행.따라서 객체주입을 받을 수 없는데
@@ -26,13 +26,14 @@ class BoardMapperTest {
 
     @Test
     void findByBId() {
-        BoardDto board=boardMapper.findByBId(10);
+        BoardDto board=boardMapper.findByBId(1);
         //지연로딩(ResultMap.Collection.fetchType=lazy) : 호출할 때(트리거(=get,toString)) 그 순간에 조회
         //일반적으로 board를 조회할때는 replies가 출력되지 않고  getReplies()가 있을때 즉 호출할때 replies를  조회
-        System.out.println("board.getReplies() = " + board.getReplies());
-        System.out.println("board.getUser() = " + board.getUser());
-        System.out.println("board.getImgs() = " + board.getImgs());
-        System.out.println("board.getlikes() = " + board.getLikes());
+//        System.out.println("board.getReplies() = " + board.getReplies());
+//        System.out.println("board.getUser() = " + board.getUser());
+//        System.out.println("board.getImgs() = " + board.getImgs());
+//        System.out.println("board.getlikes() = " + board.getLikes());
+        System.out.println("board.getTags() = " + board.getTags());
         assertNotNull(board);
 
 

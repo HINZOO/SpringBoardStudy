@@ -10,7 +10,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -98,7 +100,12 @@ public class BoardController {
             redirectPage="redirect:/board/list.do";
         }else{
             //등록실패시 저장했던 파일 삭제
-
+            if(imgDtos!=null){
+                for(BoardImgDto i: imgDtos){
+                    File imgfIle=new File(staticPath+i.getImgPath());
+                    if(imgfIle.exists()) imgfIle.delete();//DB에 이미지파일이 존재하면 이미지파일을 삭제합니다.
+                }
+            }
         }
         return redirectPage;
 
@@ -117,21 +124,80 @@ public class BoardController {
     public String modifyAction(
             @ModelAttribute BoardDto board,
             @RequestParam(value ="delImgId",required = false) int[] delImgIds,
-            @RequestParam(value ="delImgPath",required = false) String[] delImgpaths,
             @RequestParam(value="img",required = false)MultipartFile[] imgs){
         //log.info(Arrays.toString(delImgIds));
         String redirectPage="redirect:/board/"+board.getBId()+"/modify.do";
-
+        List<BoardImgDto> imgDtos=null;
         int modify=0;
         try{
-            modify=boardService.modify(board,delImgIds);
+/*            if(imgs!=null){
+                imgDtos=new ArrayList<>();
+                for(MultipartFile img: imgs){
+                    if(!img.isEmpty()){
+                        String[] contentTypes=img.getContentType().split("/");
+                        if(contentTypes[0].equals("image")){
+                            String fileName=System.currentTimeMillis()+"_"+(int)(Math.random()*10000)+"."+contentTypes[1];
+                            Path path = Paths.get(uploadPath+"/board/"+fileName);//컴퓨터의 실제 저장위치.
+                            img.transferTo(path);
+                            BoardImgDto imgDto=new BoardImgDto();
+                            imgDto.setImgPath("/public/img/board/"+fileName);//서버배포경로
+                            imgDtos.add(imgDto);
+                        }
+                    }
+                }
+                board.setImgs(imgDtos);
+            }*/
+
+            if(delImgIds!=null) imgDtos=boardService.imgList(delImgIds);//삭제하기전에 삭제예정 이미지 파일 경로를 받아옴.
+            modify=boardService.modify(board,delImgIds);//이미지 파일 주소를 서버에서 삭제
         }catch (Exception e){
             log.error(e.getMessage());
         }
         if(modify>0){
+            if(imgDtos!=null){
+                for(BoardImgDto i: imgDtos){
+                    File imgfIle=new File(staticPath+i.getImgPath());//삭제예정인 이미지 파일을 받아옴.
+                    if(imgfIle.exists()) imgfIle.delete();//한번 더 물어보고 이미지파일을 DB에서 삭제
+                }
+            }
             redirectPage="redirect:/board/list.do";
         }
         return redirectPage;
+    }
+    @GetMapping("/{bId}/remove.do")
+    public String removeAction(@PathVariable int bId,
+                               @SessionAttribute UserDto loginUser,
+                               RedirectAttributes redirectAttributes
+                                ){
+        String redirectPath="redirect:/board/"+bId+"/modify.do";
+        String msg="삭제 실패";
+        //DB의 이미지도 같이 삭제하기 위해 불러옴.
+        BoardDto board=null;
+        List<BoardImgDto> imgDtos=null;
+        int remove=0;
+        try{
+            board=boardService.detail(bId);
+            imgDtos=board.getImgs();//이미지 파일 조회(lazy이기 때문에~)
+            remove= boardService.remove(bId);
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
+        if(remove>0){
+            //삭제 성공시, 이미지 파일도 삭제
+            if(imgDtos!=null){
+                for(BoardImgDto i:imgDtos){
+                    File imgFile=new File(staticPath+i.getImgPath());
+                    if(imgFile.exists()) imgFile.delete();
+                }
+            }
+            msg="삭제성공!";
+            redirectPath="redirect:/board/list.do";
+        }
+        redirectAttributes.addFlashAttribute("msg",msg);
+        //addFlashAttribute:session에 전달
+        //addAttribute : 파라미터에 전달.
+        return redirectPath;
+
     }
 
 }

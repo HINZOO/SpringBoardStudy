@@ -11,9 +11,11 @@ public interface BoardImgMapper {
     //BoardImgMapperTest 생성
 
     //게시글에서 조회되는 이미지 리스트
+    //이미지 선택조회
     //게시글에 이미지 등록
     //게시글의 이미지 삭제(수정없음)
     List<BoardImgDto> findByBId(int bId);
+    BoardImgDto findByBiId(int biId);
     int insertOne(BoardImgDto boardImgDto);
     int deleteOne(int biId);
 }

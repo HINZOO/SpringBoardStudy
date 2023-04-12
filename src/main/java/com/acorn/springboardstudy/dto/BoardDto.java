@@ -21,6 +21,7 @@ public class BoardDto {
     private UserDto user;//N:1 = boards : user
     private List<BoardReplyDto> replies; //1:N관계 = board :board_replies
     private List<BoardImgDto> imgs; //1:N 관계 = board :board_imgs
+    private List<BoardHashTagDto> tags;//1:N 관계 = board :board_hashtags
 
 
 }

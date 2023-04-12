@@ -29,16 +29,16 @@
       <div class="d-flex ">
         <ul class="breadcrumb ">
           <th:block th:if="${session.loginUser==null}">
-            <li class="breadcrumb-item">
+            <li class="">
               <a class="nav-link" href="/user/login.do">로그인</a>
             </li>
-            <li class="breadcrumb-item">
+            <li class="">
               <a class="nav-link" href="/user/signup.do">회원가입</a>
             </li>
           </th:block>
           <th:block th:if="${session.loginUser!=null}">
-            <li class="breadcrumb-item">
-              <a class="nav-link"
+            <li class="">
+              <a class="nav-link m-0"
                  th:href="@{'/user/{uId}/detail.do'(uId=${session.loginUser.uId})}">
                 <!--path:variable
                   th:href="@{'/user/{uId}/detail.do'(uId=${session.loginUser.uId})
@@ -48,7 +48,7 @@
                 (<span th:text="${session.loginUser.name}"></span>)
               </a>
             </li>
-            <li class="breadcrumb-item">
+            <li class="ms-1">
               <a class="nav-link" href="/user/logout.do">로그아웃</a>
             </li>
           </th:block>

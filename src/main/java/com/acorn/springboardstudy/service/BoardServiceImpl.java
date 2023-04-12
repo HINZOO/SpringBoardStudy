@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 @Service
 @AllArgsConstructor
@@ -16,6 +17,7 @@ public class BoardServiceImpl implements BoardService {
     private BoardMapper boardMapper;
     private UserMapper userMapper;
     private BoardImgMapper boardImgMapper;
+
     @Override
     public List<BoardDto> list() {
         List<BoardDto> list=boardMapper.findAll();
@@ -29,6 +31,19 @@ public class BoardServiceImpl implements BoardService {
         List<BoardDto> list=boardMapper.findAll();//그 변수로 지연로딩으로 좋아요 불러오기
         userMapper.setLoginUserIdNull();//사용이 끝나서 삭제
         return list;
+    }
+
+    @Override
+    public List<BoardImgDto> imgList(int[] biId) {
+        List<BoardImgDto> imgList = null;
+        if(biId!=null){
+            imgList=new ArrayList<>();
+            for(int iId : biId){
+                BoardImgDto imgDto=boardImgMapper.findByBiId(iId);
+                imgList.add(imgDto);
+            }
+        }
+        return imgList;
     }
 
     @Override
@@ -61,10 +76,11 @@ public class BoardServiceImpl implements BoardService {
         int modify=boardMapper.updateOne(board);
         if(delImgIds!=null){
             for(int biId:delImgIds){
-                modify+=boardImgMapper.deleteOne(biId);
+                modify+=boardImgMapper.deleteOne(biId);//서버 상 지움
             }
         }
         return modify;
+        //int 대신에 boardImg 리스트를 반환..(맵으로 반환해서 인트값과 보드이미지를 반환하는것도 방법이겠다..)
     }
 
     @Override
