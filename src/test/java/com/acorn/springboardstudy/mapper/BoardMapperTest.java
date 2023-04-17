@@ -1,6 +1,7 @@
 package com.acorn.springboardstudy.mapper;
 
 import com.acorn.springboardstudy.dto.BoardDto;
+import com.acorn.springboardstudy.dto.PageDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,10 +18,18 @@ class BoardMapperTest {
     //Junit은 클래스의 생성자를 정의할 수 없다. 따라서 생성자 없이 객체를 주입받는 @Autowired를 작성해야한다.
     @Autowired
     private BoardMapper boardMapper;
-
+    @Test
+    void page(){
+        int totalRows=13;
+        int offset=5;
+        double result =((double)totalRows)/offset;
+        System.out.println("Math.ceil(totalRows/offset) = " + Math.ceil( ((double)totalRows)/offset));
+        System.out.println("result" +result);
+    }
     @Test
     void findAll() {
-        List<BoardDto> boardList=boardMapper.findAll();
+        PageDto pageDto=new PageDto();
+        List<BoardDto> boardList=boardMapper.findAll(pageDto);
         System.out.println("boardList = " + boardList);
     }
 

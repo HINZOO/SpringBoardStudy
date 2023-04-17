@@ -2,6 +2,7 @@ package com.acorn.springboardstudy.controller;
 
 import com.acorn.springboardstudy.dto.BoardDto;
 import com.acorn.springboardstudy.dto.BoardImgDto;
+import com.acorn.springboardstudy.dto.PageDto;
 import com.acorn.springboardstudy.dto.UserDto;
 import com.acorn.springboardstudy.service.BoardService;
 import lombok.extern.log4j.Log4j2;
@@ -36,12 +37,12 @@ public class BoardController {
 
     @GetMapping("/list.do")
     public String list(Model model,
-                       @SessionAttribute(required = false) UserDto loginUser){
+                       @SessionAttribute(required = false) UserDto loginUser,
+                       @ModelAttribute PageDto pageDto){
         // @SessionAttribute(required = false) UserDto loginUser 로그인 안해도 들어올수있음.
-
         List<BoardDto> boards;
-        boards=boardService.list(loginUser);
-
+        boards=boardService.list(loginUser,pageDto);
+        model.addAttribute("page",pageDto);
         model.addAttribute("boards",boards);
         return "/board/list";
     }

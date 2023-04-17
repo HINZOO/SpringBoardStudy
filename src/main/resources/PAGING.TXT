@@ -1,0 +1,45 @@
+1. 페이징은 쿼리의 맨뒤에 작성한다.
+    1) 0번 인덱스 부터 총 5개(offset)를 보여주겠다.
+    SELECT * FROM boards LIMIT 0,5
+
+    2) 2번 페이지
+    SELECT * FROM boards LIMIT 5,5
+    ->2번 페이지
+
+    3) n번 페이지
+    -DESC : 내림차순정렬
+    SELECT * FROM boards DESC LIMIT ((page-1)*5),5;
+
+2. WHERE 절은 ORDER BY 안쪽
+    1) 열 을 포함하고 있는 콘텐츠를 찾는 쿼리.
+    SELECT * FORM boards WHERE  content like '%열%' ORDER BY update_time DESC;
+    = 과 like >> like는 유사한것을 말한다. like가 되어야 열이 들어간 친구들을 찾는데 사실 이대로는 안되고
+    %와일드 카드를 사용하여 작성해야 열이 들어간 글자를 찾을 수 있다.
+
+    2) 4번째에 열이 오는 것을 찾기.
+    SELECT * FORM boards WHERE  content like '___열%' ORDER BY update_time DESC;
+
+    3) 안녕하세요가 앞에 오는 쿼리
+    SELECT * FORM boards WHERE  content like '안녕하세요%' ORDER BY update_time DESC;
+
+    4) 앞쪽에 작성태그 첫글자가 오는 쿼리
+    SELECT * FROM hashtags WHERE tag like CONCAT(#{tag},'%');
+
+    5) 일반 검색 쿼리 (+페이징)
+    SELECT * FROM boards WHERE content like CONCAT ('%','열','%') ORDER BY update_time DESC LIMIT 0,5;
+3)검색 쿼리 작성시 유의사항
+    <select id="findAll" resultMap="BoardMap" parameterType="PageDto">
+        SELECT * FROM boards ORDER BY ${order} ${direct} LIMIT #{startIndex},#{offset}
+    </select>
+
+    6) 서치필드가 있으면 서치해서 결과 진행.
+        <select id="findAll" resultMap="BoardMap" parameterType="PageDto">
+            SELECT
+                * FROM boards
+                <if test="searchField!=null and searchValue!=null"> /*다이나믹 쿼리*/
+                    WHERE ${searchField} LIKE CONCAT('%',#{searchValue},'%')
+                </if>
+                  ORDER BY ${order} ${direct}
+                  LIMIT #{startIndex},#{offset}
+        </select>
+

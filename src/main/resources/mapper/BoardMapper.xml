@@ -85,12 +85,22 @@
     <delete id="deleteOne" >/* parameterType 생략 가능*/
         DELETE FROM boards WHERE b_id=#{bId}
     </delete>
-    <select id="findAll" resultMap="BoardMap">
-        SELECT *
-        <if test="#{loginUserId!=null}">
-               ,(SELECT status FROM board_likes WHERE b_id=boards.b_id AND u_id=#{loginUserId}) login_user_like_status
+    <select id="findAll" resultMap="BoardMap" parameterType="PageDto">
+        SELECT
+            * FROM boards
+            <if test="searchField!=null and searchValue!=null"> /*다이나믹 쿼리*/dd
+                WHERE ${searchField} LIKE CONCAT('%',#{searchValue},'%')
+            </if>
+              ORDER BY ${order} ${direct}
+              LIMIT #{startIndex},#{offset}
+    </select>
+    <select id="countAll" resultType="int" parameterType="PageDto">/*검색 페이지네이션을 위한 쿼리*/
+        SELECT COUNT(*)
+         FROM boards
+        <if test="searchField!=null and searchValue!=null">
+            WHERE ${searchField} LIKE CONCAT('%',#{searchValue},'%')
         </if>
-        FROM boards
+
     </select>
     <!--[복합관계 맵핑할때 sql]
     <select id="findAll" resultMap="BoardMap">
