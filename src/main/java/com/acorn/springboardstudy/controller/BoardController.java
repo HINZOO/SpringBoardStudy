@@ -38,7 +38,6 @@ public class BoardController {
     public String list(Model model,
                        @SessionAttribute(required = false) UserDto loginUser){
         // @SessionAttribute(required = false) UserDto loginUser 로그인 안해도 들어올수있음.
-
         List<BoardDto> boards;
         boards=boardService.list(loginUser);
 

@@ -35,5 +35,10 @@ mybatis:
   mapper-locations: mapper/*Mapper.xml
   type-aliases-package: com.acorn.springboardstudy.dto
   #패키지명 미리 작성
+
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+
 server:
   port: 8080

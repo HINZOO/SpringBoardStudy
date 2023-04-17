@@ -9,7 +9,6 @@ import java.util.List;
 public interface BoardMapper {
     //리스트, 상세, 등록, 수정, 삭제 ,신고,
     List<BoardDto> findAll();
-    List<BoardDto> findAll(String loginUserId);
     List<BoardDto> findByTag(String Tag);//해시태그로 검색
     BoardDto findByBId( int bId);
    /* BoardDto findByBId( @Param(value="b_id") int bId);=>로 지정하면 쿼리작성시 b_id로 쓸수 있다.*/
