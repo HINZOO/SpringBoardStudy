@@ -87,5 +87,11 @@ class BoardMapperTest {
         int updateIncrementViewCountByBId = boardMapper.updateIncrementViewCountByBId(1);
         assertEquals(updateIncrementViewCountByBId,1);
     }
+
+    @Test
+    void findByTag() {
+        List<BoardDto> boards=boardMapper.findByTag("홍대");
+        assertNotNull(boards);
+    }
 }
 //view 하기 전에 user로 조인 board_like 도 join 해서 테스트 진행~~~

@@ -1,10 +1,7 @@
 package com.acorn.springboardstudy.service;
 
-import com.acorn.springboardstudy.dto.BoardDto;
-import com.acorn.springboardstudy.dto.BoardImgDto;
-import com.acorn.springboardstudy.mapper.BoardImgMapper;
-import com.acorn.springboardstudy.mapper.BoardMapper;
-import com.acorn.springboardstudy.mapper.UserMapper;
+import com.acorn.springboardstudy.dto.*;
+import com.acorn.springboardstudy.mapper.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,20 +14,23 @@ public class BoardServiceImpl implements BoardService {
     private BoardMapper boardMapper;
     private UserMapper userMapper;
     private BoardImgMapper boardImgMapper;
+    private HashTagMapper hashTagMapper;
+    private BoardHashMapper boardHashMapper;
 
     @Override
-    public List<BoardDto> list() {
-        List<BoardDto> list=boardMapper.findAll();
+    public List<BoardDto> list(UserDto loginUser) {
+        if(loginUser!=null)userMapper.setLoginUserId(loginUser.getUId()); //로그인한 유저아이디를 mysql 서버의 변수로 등록
+        List<BoardDto> list=boardMapper.findAll();//그 변수로 지연로딩으로 좋아요 불러오기
+        if(loginUser!=null)userMapper.setLoginUserIdNull();//사용이 끝나서 삭제;
         return list;
     }
 
     @Override
-    public List<BoardDto> list(String loginUserId) {
-        //List<BoardDto> list=boardMapper.findAll(loginUserId);//서브쿼리로 좋아요 불러오기
-        userMapper.setLoginUserId(loginUserId); //로그인한 유저아이디를 mysql 서버의 변수로 등록
-        List<BoardDto> list=boardMapper.findAll();//그 변수로 지연로딩으로 좋아요 불러오기
-        userMapper.setLoginUserIdNull();//사용이 끝나서 삭제
-        return list;
+    public List<BoardDto> tagList(String tag, UserDto loginUser) {
+        if(loginUser!=null) userMapper.setLoginUserId(loginUser.getUId());//로그인한 유저가 좋아요한 내역불러오기
+        List<BoardDto> tagList=boardMapper.findByTag(tag);
+        if(loginUser!=null) userMapper.setLoginUserIdNull();//로그인한 유저가 좋아요 한 내역 지우기
+        return tagList;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional//중간에 실수하면 등록취소
-    public int register(BoardDto board) {
+    public int register(BoardDto board, List<String> tags) {
         int register=0;
         register=boardMapper.insertOne(board);//bId생성(useGeneratedKeys="true" keyProperty="bId")
         if(board.getImgs()!=null){
@@ -67,16 +67,45 @@ public class BoardServiceImpl implements BoardService {
                 register+=boardImgMapper.insertOne(img);
             }
         }
+        if(tags!=null){
+            for(String tag:tags){
+                HashTagDto hashTagDto=hashTagMapper.findByTag(tag);
+                if(hashTagDto==null) register+=hashTagMapper.insertOne(tag);
+                BoardHashTagDto boardHashTag=new BoardHashTagDto();
+                boardHashTag.setBId(board.getBId());
+                boardHashTag.setTag(tag);
+                register+=boardHashMapper.insertOne(boardHashTag);
+            }
+        }
         return register;
     }
 
     @Override
     @Transactional
-    public int modify(BoardDto board, int[] delImgIds) {
+    public int modify(BoardDto board, int[] delImgIds, List<String> tags, List<String> delTags) {
         int modify=boardMapper.updateOne(board);
+
         if(delImgIds!=null){
             for(int biId:delImgIds){
                 modify+=boardImgMapper.deleteOne(biId);//서버 상 지움
+            }
+        }
+        if(tags!=null){
+            for(String tag:tags){
+                HashTagDto hashTagDto=hashTagMapper.findByTag(tag);
+                if(hashTagDto==null) modify+=hashTagMapper.insertOne(tag);
+                BoardHashTagDto boardHashTag=new BoardHashTagDto();
+                boardHashTag.setBId(board.getBId());
+                boardHashTag.setTag(tag);
+                modify+=boardHashMapper.insertOne(boardHashTag);
+            }
+        }
+        if(delTags!=null){
+            for(String tag:delTags){
+                BoardHashTagDto boardHashTag=new BoardHashTagDto();
+                boardHashTag.setBId(board.getBId());
+                boardHashTag.setTag(tag);
+                modify+=boardHashMapper.deleteOne(boardHashTag);
             }
         }
         return modify;

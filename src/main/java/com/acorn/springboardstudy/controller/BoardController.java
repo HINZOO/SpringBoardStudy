@@ -40,9 +40,19 @@ public class BoardController {
         // @SessionAttribute(required = false) UserDto loginUser 로그인 안해도 들어올수있음.
 
         List<BoardDto> boards;
-        if(loginUser==null) boards=boardService.list();
-        else boards=boardService.list(loginUser.getUId());
+        boards=boardService.list(loginUser);
 
+        model.addAttribute("boards",boards);
+        return "/board/list";
+    }
+    @GetMapping("/{tag}/tagList.do")
+    public String tagList(
+                        @PathVariable String tag,
+                        Model model,
+                        @SessionAttribute(required = false) UserDto loginUser){
+
+        List<BoardDto> boards;
+        boards=boardService.tagList(tag,loginUser);
         model.addAttribute("boards",boards);
         return "/board/list";
     }
@@ -63,9 +73,17 @@ public class BoardController {
     public String registerAction(
                     @SessionAttribute UserDto loginUser,
                     @ModelAttribute BoardDto board,
-                    @RequestParam (name="img") MultipartFile[] imgs
+                    @RequestParam (name="img",required = false) MultipartFile[] imgs,
+                    @RequestParam(name="tag",required = false) List<String> tags
                                   ) throws IOException {
         String redirectPage="redirect:/board/register.do";
+
+/*        test
+        System.out.println("tags = " + tags);
+        if(tags!=null) {
+            return redirectPage;
+        }*/
+
         if(!loginUser.getUId().equals(board.getUId())) return redirectPage;
         /*폼의 글쓴이와 로그인아이디가 다른경우.*/
         /*@RequestParam (name="img") MultipartFile[] imgs
@@ -91,7 +109,7 @@ public class BoardController {
         board.setImgs(imgDtos);
         int register=0;
         try{
-            register=boardService.register(board);
+            register=boardService.register(board,tags);
 
         }catch (Exception e){
             log.error(e.getMessage());
@@ -124,32 +142,17 @@ public class BoardController {
     public String modifyAction(
             @ModelAttribute BoardDto board,
             @RequestParam(value ="delImgId",required = false) int[] delImgIds,
-            @RequestParam(value="img",required = false)MultipartFile[] imgs){
+            @RequestParam(value="img",required = false)MultipartFile[] imgs,
+            @RequestParam(value="tag",required = false) List<String>tags,
+            @RequestParam(value="delTag",required = false) List<String> delTags
+            ){
         //log.info(Arrays.toString(delImgIds));
         String redirectPage="redirect:/board/"+board.getBId()+"/modify.do";
         List<BoardImgDto> imgDtos=null;
         int modify=0;
         try{
-/*            if(imgs!=null){
-                imgDtos=new ArrayList<>();
-                for(MultipartFile img: imgs){
-                    if(!img.isEmpty()){
-                        String[] contentTypes=img.getContentType().split("/");
-                        if(contentTypes[0].equals("image")){
-                            String fileName=System.currentTimeMillis()+"_"+(int)(Math.random()*10000)+"."+contentTypes[1];
-                            Path path = Paths.get(uploadPath+"/board/"+fileName);//컴퓨터의 실제 저장위치.
-                            img.transferTo(path);
-                            BoardImgDto imgDto=new BoardImgDto();
-                            imgDto.setImgPath("/public/img/board/"+fileName);//서버배포경로
-                            imgDtos.add(imgDto);
-                        }
-                    }
-                }
-                board.setImgs(imgDtos);
-            }*/
-
             if(delImgIds!=null) imgDtos=boardService.imgList(delImgIds);//삭제하기전에 삭제예정 이미지 파일 경로를 받아옴.
-            modify=boardService.modify(board,delImgIds);//이미지 파일 주소를 서버에서 삭제
+            modify=boardService.modify(board,delImgIds,tags,delTags);//이미지 파일 주소를 서버에서 삭제
         }catch (Exception e){
             log.error(e.getMessage());
         }

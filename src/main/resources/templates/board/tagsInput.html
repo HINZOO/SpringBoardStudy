@@ -1,0 +1,97 @@
+<div id="tagsCont" class="mb-2">
+
+</div>
+
+<div class="input-group">
+    <label class="input-group-text bi bi-hash"></label>
+    <input id="tagsInput" class="form-control" list="tagsDataList" type="text" placeholder="해시태그">
+</div>
+<datalist id="tagsDataList"><!--기본적으로 search 기능이 있음. input에 보여짐.-->
+</datalist>
+<script>
+    const tagsDataList=document.getElementById("tagsDataList");
+    const tagsInput=document.getElementById("tagsInput");
+    const tagsCont=document.getElementById("tagsCont");
+    const tagsSet=new Set(); //같은것이 존재하지 않는 자료구조(검색,정렬이 배열보다 빠름)
+
+    //keyup,keydown,keypress e-> 어떤키를 눌렀는지 키보드 정보를가져옴. **한글입력은 받을 수 없음
+    //         console.log(e);       e.preventDefault(); 후 로그창을 확인하면 code 값에 누른키가 출력됨을확인
+    // compositionstart.compositionend: 자음모음이 있는 언어를 입력할때 start:입력중 end:입력끝. 입력끝 지점에서 space를 받는다,
+    //한글 입력중에 엔터를 입력하면 keydown 2번 발생 : 자음 모음을 하나의 문자로 완성하던중 엔터를 입력하면 문자입력+엔터가 동시의 keydown을 발생.
+    let composition=false;
+    tagsInput.addEventListener("compositionstart",(e)=>{
+        composition=true;
+    });
+    tagsInput.addEventListener("compositionend",(e)=>{
+        composition=false;
+        let tagName=tagsInput.value;
+        let lastVal=tagName[tagName.length-1]; // ""==스페이스
+        if(lastVal===" "){
+            appendTag();//스페이스를 한번만 눌러도 실행되도록 설정 (안하면 두번눌러야 입력)
+        }
+    });
+
+    tagsInput.addEventListener("keydown",(e)=>{
+        if((e.code==="Enter"||e.code==="Space")&&!composition){
+            e.preventDefault();
+            appendTag();
+        }
+    });
+    tagsInput.addEventListener("change",async(e)=>{
+           appendTag();
+    })
+    tagsInput.addEventListener("input",async(e)=>{
+        let tagName=tagsInput.value;
+        if(tagName.length>0){
+            await searchTags(tagName);
+        }
+    })
+
+    async function searchTags(tagName){
+         let url=`/hashtag/${tagName}/search.do`;
+         const resp= await fetch(url);
+         const tags= await resp.json();
+         tagsDataList.innerHTML="";
+         for(const tag of tags){
+             tagsDataList.insertAdjacentHTML("beforeend",tagOptComponent(tag));
+         }
+    }
+
+    function tagOptComponent(tagObj){
+        return `<option value="${tagObj.tag}">${tagObj.tag} 게시물 ${tagObj.bCnt} 개</option>`;
+    }
+
+    function appendTag(){
+        let tagName=tagsInput.value.trim();
+        tagsInput.value="";
+        if(tagName.length===0){
+            alert("한글자 이상 입력하세요");
+            return;
+        }
+        if(!tagsSet.has(tagName)){
+            tagsSet.add(tagName);//태그네임을 집어넣어 중복방지
+            tagsCont.insertAdjacentHTML("beforeend",tagComponent(tagName))
+        }else{
+            alert("이미 등록된 태그입니다.")
+        }
+    }
+    function tagComponent(tagName){
+        return `
+            <a href="javascript:void(0)" onclick="removeTag(this,'${tagName}')" class="btn btn-success rounded-5 btn-sm ">
+                <i class="bi bi-hash"></i>
+                <span>${tagName}</span>
+                <i class="bi bi-x ms-1"></i>
+                <input type="hidden" name="tag" value="${tagName}">
+            </a> `
+    }
+
+
+    function removeTag(tagNode,tagName){
+        // tagNode="하나의 태그 전체" tagName="홍대"
+        tagNode.remove(); //노드 객체에는 remove가 존재한다.
+        tagsSet.delete(tagName);//Set에서도 삭제되어 중복방지에러해결
+        alert("태그 삭제!");
+    }
+
+
+</script>

@@ -1,0 +1,6 @@
+<ul class="breadcrumb">
+  <li th:each="t:${b.tags}" class="breadcrumb-item">
+    <i class="bi bi-hash"></i>
+    <small th:text="${t.tag}"></small>
+  </li>
+</ul>

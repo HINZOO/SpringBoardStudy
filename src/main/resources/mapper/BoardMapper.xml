@@ -100,7 +100,11 @@
     <select id="findByBId" resultMap="BoardMap">
         SELECT * FROM boards WHERE b_id=#{bId}
     </select>
-<!--    <select id="findAll" resultMap="BoardMap">-->
-<!--        SELECT *  FROM boards-->
-<!--    </select>-->
+
+    <select id="findByTag" resultMap="BoardMap">
+         SELECT boards.*
+            FROM boards INNER JOIN board_hashtags
+            USING (b_id)
+            WHERE tag=#{tag}
+    </select>
 </mapper>

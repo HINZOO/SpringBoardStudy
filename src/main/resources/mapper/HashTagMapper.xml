@@ -3,6 +3,9 @@
 <mapper namespace="com.acorn.springboardstudy.mapper.HashTagMapper">
     <resultMap id="HashTagMap" type="HashTagDto">
         <id property="tag" column="tag"/>
+        <association property="bCnt"
+                     select="com.acorn.springboardstudy.mapper.BoardHashMapper.countByTag"
+                     column="tag"/>
     </resultMap>
 
     <insert id="insertOne">

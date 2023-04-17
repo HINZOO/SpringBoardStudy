@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+<style>
+  #tagListCont .list-group-item:hover{
+    background-color: #31363b !important;
+  }
+</style>
 <!--bundle : 외부 라이브러리 포함-->
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
@@ -22,8 +27,14 @@
             <i class="bi bi-plus-square"></i>
           </a>
         </li>
-      </ul>
+        <li class="nav-item">
+          <a class="nav-link" data-bs-toggle="offcanvas" href="#offcanvasSearch" role="button" aria-controls="offcanvasExample">
+           해시태그검색
+            <i class="bi bi-search"></i>
+          </a>
+        </li>
 
+      </ul>
 
     <!--로그인한 유저-->
       <div class="d-flex ">
@@ -57,6 +68,64 @@
     </div>
   </div>
 </nav>
+<div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="offcanvasSearch" aria-labelledby="offcanvasExampleLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="offcanvasExampleLabel">해시태그검색</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="input-group">
+      <label class="input-group-text bg-dark text-white"><i class="bi bi-hash"></i></label>
+      <input type="text" id="searchTagInput" class="form-control" placeholder="해시태그">
+    </div>
+    <hr>
+    <div id="tagListCont" class="list-group"></div>
+  </div>
+</div>
+
+<script>
+  function tagListComponent(tagObj){
+    return `
+          <a href="/board/${tagObj.tag}/tagList.do" class="d-flex align-items-center list-group-item text-bg-dark" aria-current="true">
+            <i class="bi bi-hash border rounded-circle fs-3 d-flex justify-content-center align-items-center "
+                style="width:45px;height: 45px"></i>
+            <div class="dark ms-3">
+                <div class="">
+                    <i class="bi bi-hash"></i>
+                    <span>${tagObj.tag}</span>
+                </div>
+                <div class="text-white-50">
+                    <small>게시물</small>
+                    <small>${tagObj.bCnt}</small>
+                    <small>개</small>
+                </div>
+            </div>
+          </a>
+    `;
+  }
+  const searchTagInput=document.getElementById("searchTagInput");
+  const tagListCont=document.getElementById("tagListCont");
+  searchTagInput.addEventListener("input",async (e)=>{
+    let tag=searchTagInput.value;
+    if(tag.length>0){
+      const tags=await searchTags(tag);
+      if(tags){
+        tagListCont.innerHTML="";
+        for(const tagObj of tags){
+          tagListCont.insertAdjacentHTML("beforeend",tagListComponent(tagObj));
+        }
+      }
+    }
+  });
+  async function searchTags(tag){
+     let url=`/hashtag/${tag}/search.do`;
+     const resp=await fetch(url);
+     if(resp.status===200){
+       return await resp.json();
+     }
+  }
+</script>
+
 <th:block th:if="${msg!=null || session.msg!=null}">
   <div  id="actionModal" class="modal" tabindex="-1">
     <div class="modal-dialog">
@@ -82,4 +151,5 @@
     new bootstrap.Modal(actionModal).show();
   </script>
 </th:block>
+
 </html>
