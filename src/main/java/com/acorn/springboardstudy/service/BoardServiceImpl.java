@@ -19,10 +19,10 @@ public class BoardServiceImpl implements BoardService {
     private BoardHashMapper boardHashMapper;
 
     @Override
-    public List<BoardDto> list(UserDto loginUser) {
+    public List<BoardDto> list(UserDto loginUser, BoardPageDto pageDto) {
         if(loginUser!=null)userMapper.setLoginUserId(loginUser.getUId()); //로그인한 유저아이디를 mysql 서버의 변수로 등록
-        PageHelper.startPage(1,5,"b_id");//현재페이지/오프셋/orderby
-        List<BoardDto> list=boardMapper.findAll();//그 변수로 지연로딩으로 좋아요 불러오기
+        PageHelper.startPage(pageDto.getPageNum(), pageDto.getPageSize(),pageDto.getOrderBy());
+        List<BoardDto> list=boardMapper.findAll(pageDto);//그 변수로 지연로딩으로 좋아요 불러오기
         if(loginUser!=null)userMapper.setLoginUserIdNull();//사용이 끝나서 삭제;
         return list;
     }

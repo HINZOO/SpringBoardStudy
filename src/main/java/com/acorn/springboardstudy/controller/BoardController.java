@@ -2,8 +2,10 @@ package com.acorn.springboardstudy.controller;
 
 import com.acorn.springboardstudy.dto.BoardDto;
 import com.acorn.springboardstudy.dto.BoardImgDto;
+import com.acorn.springboardstudy.dto.BoardPageDto;
 import com.acorn.springboardstudy.dto.UserDto;
 import com.acorn.springboardstudy.service.BoardService;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -36,12 +38,14 @@ public class BoardController {
 
     @GetMapping("/list.do")
     public String list(Model model,
-                       @SessionAttribute(required = false) UserDto loginUser){
+                       @SessionAttribute(required = false) UserDto loginUser,
+                       @ModelAttribute BoardPageDto pageDto){//DTO를 @Data를 해줘야 @ModelAttribute로 불러올수있다.
         // @SessionAttribute(required = false) UserDto loginUser 로그인 안해도 들어올수있음.
         List<BoardDto> boards;
-        boards=boardService.list(loginUser);
-
-        model.addAttribute("boards",boards);
+        boards=boardService.list(loginUser,pageDto);
+        PageInfo<BoardDto> pageBoards=new PageInfo<>(boards);//네비게이션역할.
+        model.addAttribute("page",pageBoards);//페이지가 있는 보드
+        model.addAttribute("boards",boards);//페이지가 없는 보드
         return "/board/list";
     }
     @GetMapping("/{tag}/tagList.do")

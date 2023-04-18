@@ -20,7 +20,7 @@ class BoardMapperTest {
 
     @Test
     void findAll() {
-        List<BoardDto> boardList=boardMapper.findAll();
+        List<BoardDto> boardList=boardMapper.findAll(pageDto);
         System.out.println("boardList = " + boardList);
     }
 

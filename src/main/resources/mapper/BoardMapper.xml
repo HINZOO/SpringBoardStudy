@@ -85,8 +85,11 @@
     <delete id="deleteOne" >/* parameterType 생략 가능*/
         DELETE FROM boards WHERE b_id=#{bId}
     </delete>
-    <select id="findAll" resultMap="BoardMap">
+    <select id="findAll" resultMap="BoardMap" parameterType="BoardPageDto">
         SELECT *  FROM boards
+        <if test="searchField!=null and searchValue!=null">
+            WHERE ${searchField} LIKE CONCAT('%',#{searchValue},'%')
+        </if>
     </select>
     <!--[복합관계 맵핑할때 sql]
     <select id="findAll" resultMap="BoardMap">
