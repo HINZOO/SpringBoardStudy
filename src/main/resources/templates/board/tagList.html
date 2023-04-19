@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title> 해시태그 검색 게시판 리스트</title>
+    <script src="/public/js/BoardLIke.js" defer></script>
+</head>
+
+<div layout:fragment="content">
+    <h1 class="mt-4">해시태그 검색</h1>
+    <h2 class="mb-4">
+        <i class="bi bi-hash"></i>
+        <span th:text="${tag}"></span>
+    </h2>
+   <section id="boardListCont" class="row row-cols-lg-2 row-cols-1 g-5">
+        <th:block th:include="/board/includeList"></th:block>
+    </section>
+    <script>
+        let pageNum=1;
+        let lastPage=[[${boards.pages}]];
+        const boardListCont=document.getElementById("boardListCont")
+        window.addEventListener("scroll", async ()=>{
+            //브라우저마다 scrollTop을 호출하는곳이 달라서 두군데를 다 써준다.
+            let scrollTop=document.documentElement.scrollTop || document.body.scrollTop;
+            let clientHeight=document.documentElement.clientHeight || document.body.clientHeight;
+            // let scrollHeight=document.documentElement.scrollHeight || document.body.scrollHeight;
+            let scrollHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+            scrollHeight-=clientHeight;
+            console.log(scrollTop,scrollHeight);
+            if(scrollTop===scrollHeight){
+                if(lastPage===pageNum){
+                    alert("마지막페이지입니다.");
+                    return;
+                }
+                let list=await loadTagList(pageNum+1);
+                if(list){
+                    ++pageNum;
+                    boardListCont.insertAdjacentHTML("beforeend",list);
+                }
+            }
+        })
+
+        async function loadTagList(pageNum){
+            let url="/board/[[${tag}]]/ajaxTagList.do?pageNum="+pageNum;
+            const resp=await fetch(url);
+            if(resp.status===200){
+                return await resp.text();
+            }
+        }
+    </script>
+    <br><br><br><br><br><br><br><br><br><br>
+    <br><br><br><br><br><br><br><br><br><br>
+</div>
+
+</html>

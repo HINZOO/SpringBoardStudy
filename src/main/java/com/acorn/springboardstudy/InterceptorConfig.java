@@ -28,6 +28,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                     .excludePathPatterns("/user/signup.do")//login.do는 제외
                 .addPathPatterns("/board/**")
                     .excludePathPatterns("/board/list.do")
+                    .excludePathPatterns("/board/*/ajaxTagList.do")
                     .excludePathPatterns("/board/*/detail.do");
         /*  order를 이용해 순서 설정 가능
         registry.addInterceptor(loginCheckInterceptor).order(1)

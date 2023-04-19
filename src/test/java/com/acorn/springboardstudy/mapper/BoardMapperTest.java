@@ -1,6 +1,7 @@
 package com.acorn.springboardstudy.mapper;
 
 import com.acorn.springboardstudy.dto.BoardDto;
+import com.acorn.springboardstudy.dto.BoardPageDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +21,7 @@ class BoardMapperTest {
 
     @Test
     void findAll() {
+        BoardPageDto pageDto = new BoardPageDto();
         List<BoardDto> boardList=boardMapper.findAll(pageDto);
         System.out.println("boardList = " + boardList);
     }

@@ -28,8 +28,9 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public List<BoardDto> tagList(String tag, UserDto loginUser) {
+    public List<BoardDto> tagList(String tag, UserDto loginUser, BoardPageDto pageDto) {
         if(loginUser!=null) userMapper.setLoginUserId(loginUser.getUId());//로그인한 유저가 좋아요한 내역불러오기
+        PageHelper.startPage(pageDto.getPageNum(),pageDto.getPageSize(),pageDto.getOrderBy());
         List<BoardDto> tagList=boardMapper.findByTag(tag);
         if(loginUser!=null) userMapper.setLoginUserIdNull();//로그인한 유저가 좋아요 한 내역 지우기
         return tagList;

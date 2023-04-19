@@ -1,0 +1,69 @@
+<div class="col" th:each="b:${boards}">
+    <div class="card">
+        <div class="card-header" >
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="profile_user_post_update m-3 d-flex">
+                    <div>
+                        <span th:text="${b.bId}"></span>
+                        <i class="bi bi-dot"></i>
+                    <img
+                        th:if="${b.user.imgPath!=null}"
+                        th:src="@{'{path}'(path=${b.user.imgPath})}"
+                        alt="프로필IMG"
+                         style="width: 50px;object-fit: cover"
+                         class="img-thumbnail ">
+                    </div>
+                    <div class="">
+                        <div>
+                        <strong class="ms-2" th:text="${b.user.uId}"></strong>
+                        (<strong class="ms-2" th:text="${b.user.name}"></strong>)
+                        </div>
+                        <div class="m-2 text-muted">
+                        <small class="m-1">작성일: <span th:text="${#dates.format(b.postTime,'yyyy-MM-dd')}"></span></small>
+                        <small>수정일: <span th:text="${#dates.format(b.updateTime,'yyyy-MM-dd')}"></span></small>
+                        </div>
+                    </div>
+                </div>
+                <th:block th:include="/board/dropDownMenu"></th:block>
+            </div>
+        </div>
+        <div class="card-body">
+            <div th:if="${b.imgs!=null}" th:id="'carousel'+${b.bId}" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item" th:each="img,state:${b.imgs}" th:classappend="${(state.first)?'active':''}">
+                        <img th:src="@{'{path}'(path=${img.imgPath})}" class="d-block w-100" alt="게시글 이미지">
+    <!--                                <p th:text="${state}"></p> 이미지들의 정보. 인덱스 확인-->
+                    </div>
+
+                </div>
+                <button class="carousel-control-prev" type="button" th:data-bs-target="'#carousel'+${b.bId}" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" th:data-bs-target="'#carousel'+${b.bId}" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+            <div>
+                <h5 class="card-title" th:text="${b.title}"> 글 제목</h5>
+                <p class="card-text" th:text="${b.content}"> </p>
+                <p>
+                    <th:block th:include="/board/tags"></th:block>
+                </p>
+            </div>
+        </div>
+        <div class="card-footer d-flex align-items-center justify-content-between">
+            <div class="likeCont" th:id="'likeCont'+${b.bId}">
+                <th:block th:if="${session.loginUser!=null}" th:with="likes=${b.likes},id=${b.bId}" th:include="/board/loginLikes"> </th:block>
+                <th:block th:unless="${session.loginUser!=null}" th:with="likes=${b.likes},id=${bId}" th:include="/board/likes"> </th:block>
+                <!--th:with="변수이름=${변수로만들대상}" 지역변수 등록방법-->
+                <!--if else thymeleaf :: if, unless  로 작성한다 조건이 같아야함을 주의-->
+            </div>
+            <div class="viewCont btn btn-sm" data-bs-toggle="tooltip" data-bs-title="조회수">
+                <i class="bi bi-eye fs-4"></i>
+                <span th:text="${b.viewCount}"></span>
+            </div>
+        </div>
+    </div>
+</div>

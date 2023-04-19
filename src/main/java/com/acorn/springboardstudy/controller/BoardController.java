@@ -52,13 +52,30 @@ public class BoardController {
     public String tagList(
                         @PathVariable String tag,
                         Model model,
-                        @SessionAttribute(required = false) UserDto loginUser){
-
+                        @SessionAttribute(required = false) UserDto loginUser,
+                        BoardPageDto pageDto){
+        //로그아웃한 사람들도 들어갈수 있도록 interceptor config에서 조정 여기있는 loginUser는 좋아요수 떄문에 유지해야함.
         List<BoardDto> boards;
-        boards=boardService.tagList(tag,loginUser);
+        boards=boardService.tagList(tag,loginUser,pageDto);
         model.addAttribute("boards",boards);
-        return "/board/list";
+        model.addAttribute("tag",tag);
+        return "/board/tagList";
     }
+
+    @GetMapping("/{tag}/ajaxTagList.do")
+    public String ajaxTagList(
+            @PathVariable String tag,
+            Model model,
+            @SessionAttribute(required = false) UserDto loginUser,
+            BoardPageDto pageDto){
+        List<BoardDto> boards;
+        pageDto.setPageSize(4);//나는 4개씩안나오ㅑㅏ
+        boards=boardService.tagList(tag,loginUser,pageDto);
+        model.addAttribute("boards",boards);
+        model.addAttribute("tag",tag);
+        return "/board/includeList";
+    }
+
     //?bId=1 //bId 동적페이지에 꼭 필요(400)을 명시적으로 나타내는것
     @GetMapping("/{bId}/detail.do")
     public String detail(Model model,
