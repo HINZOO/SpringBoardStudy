@@ -22,8 +22,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto detail(String uId) {
-        return userMapper.findByUId(uId);
+    public UserDto detail(String uId,String loginUserId) {
+        userMapper.setLoginUserId(loginUserId);
+        UserDto detail= userMapper.findByUId(uId);
+        userMapper.setLoginUserIdNull();
+        return detail;
     }
 
     @Override

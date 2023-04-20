@@ -14,6 +14,10 @@
         <result column="address" property="address"/>
         <result column="detail_address" property="detailAddress"/>
         <result column="permission" property="permission"/>
+        <association property="following"
+                     select="com.acorn.springboardstudy.mapper.FollowMapper.findByToIdAndFromIdISLoginUserId"
+                     column="u_id"
+                     fetchType="eager"/>
         <collection property="followings"
                     select="com.acorn.springboardstudy.mapper.FollowMapper.findByFromId"
                     column="u_id"
@@ -21,7 +25,7 @@
         <collection property="followers"
                     select="com.acorn.springboardstudy.mapper.FollowMapper.findByToId"
                     column="u_id"
-                    fetchType="lazy"/>
+                    fetchType="eager"/>
     </resultMap>
     <update id="setLoginUserId">
         SET @loginUserId=#{uId}

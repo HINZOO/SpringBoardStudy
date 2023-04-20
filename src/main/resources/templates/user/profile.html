@@ -1,0 +1,17 @@
+<div class="d-flex">
+  <img  th:src="@{'{path}'(path=${f.imgPath})}"
+        class="border rounded-circle"
+        style="width:45px;height: 45px"/>
+  <div class="dark ms-3">
+    <div>
+      <span th:text="${f.uId}"></span>
+      <span th:if="${!f.following}" class="followCont">
+        <i class="bi bi-dot" ></i>
+        <button class="btn btn-link p-0" th:onclick="following([[${f.uId}]],this)">팔로우</button>
+      </span>
+    </div>
+    <div>
+      <small th:text="${f.name}"></small>
+    </div>
+  </div>
+</div>

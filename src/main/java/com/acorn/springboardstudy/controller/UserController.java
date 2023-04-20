@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.catalina.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -61,7 +62,7 @@ public class UserController {
             @PathVariable String uId,
             @SessionAttribute UserDto loginUser,//로그인한 사람만 수정페이지 접근가능
             Model model ){ //model : 렌더할 뷰에 바로 객체 전달
-        UserDto user=userService.detail(uId);
+        UserDto user=userService.detail(uId,null);
         model.addAttribute("user",user);
         return "/user/modify";
     }
@@ -107,7 +108,9 @@ public class UserController {
             modelAndView.setViewName("redirect:/user/login.do");
             return modelAndView;
         }
-        UserDto user = userService.detail(uId);
+        String loginUserId=(loginUser!=null)?loginUser.getUId():null;
+
+        UserDto user = userService.detail(uId,loginUserId);
         modelAndView.setViewName("/user/detail");
         modelAndView.addObject("user",user);
         return modelAndView;

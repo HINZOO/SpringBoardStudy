@@ -2,26 +2,13 @@
     <div class="card">
         <div class="card-header" >
             <div class="d-flex justify-content-between align-items-center">
-                <div class="profile_user_post_update m-3 d-flex">
-                    <div>
-                        <span th:text="${b.bId}"></span>
-                        <i class="bi bi-dot"></i>
-                    <img
-                        th:if="${b.user.imgPath!=null}"
-                        th:src="@{'{path}'(path=${b.user.imgPath})}"
-                        alt="프로필IMG"
-                         style="width: 50px;object-fit: cover"
-                         class="img-thumbnail ">
-                    </div>
-                    <div class="">
-                        <div>
-                        <strong class="ms-2" th:text="${b.user.uId}"></strong>
-                        (<strong class="ms-2" th:text="${b.user.name}"></strong>)
-                        </div>
-                        <div class="m-2 text-muted">
-                        <small class="m-1">작성일: <span th:text="${#dates.format(b.postTime,'yyyy-MM-dd')}"></span></small>
-                        <small>수정일: <span th:text="${#dates.format(b.updateTime,'yyyy-MM-dd')}"></span></small>
-                        </div>
+                <div class="profile_user_post_update ">
+                   <th:block th:include="/user/profile" th:with="f=${b.user}"></th:block>
+                    <div class="m-2 text-muted">
+                    <span th:text="${b.bId}"></span>
+                    <i class="bi bi-dot"></i>
+                    <small class="m-1">작성일: <span th:text="${#dates.format(b.postTime,'yyyy-MM-dd')}"></span></small>
+                    <small>수정일: <span th:text="${#dates.format(b.updateTime,'yyyy-MM-dd')}"></span></small>
                     </div>
                 </div>
                 <th:block th:include="/board/dropDownMenu"></th:block>

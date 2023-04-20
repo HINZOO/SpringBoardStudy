@@ -14,7 +14,7 @@ public interface UserService {
     //?? 유저는 어떤 서비스를 받을 수 있을까?
     // 로그인   // 유저상세    // 유저정보 수정    // 회원가입    // 회원탈퇴
     UserDto login(UserDto user);
-    UserDto detail(String uId);
+    UserDto detail(String uId,String loginUserId);
     int modify(UserDto user);
     int signup(UserDto user);
     int dropout(UserDto user);

@@ -17,5 +17,5 @@ public interface FollowMapper {
     List<UserDto> findByToId(String uId); //2.나를 구독하는 사람(팔로워)
     int deleteByFromIdAndToId(FollowDto followDto);//3,4
     int insertOne(FollowDto followDto);//5.
-
+    boolean findByToIdAndFromIdISLoginUserId(String uId);
 }
