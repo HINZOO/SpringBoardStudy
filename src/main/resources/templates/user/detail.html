@@ -42,7 +42,8 @@
         <div th:each="f:${user.followings}"
              class="d-flex align-items-center list-group-item justify-content-between" aria-current="true">
           <th:block th:include="/user/profile"></th:block>
-          <button type="button" class="btn btn-outline-primary active">팔로잉</button>
+          <button th:onclick="toggleFollowing([[${f.uId}]],this)"
+                  type="button" class="btn btn-outline-primary active">팔로잉</button>
         </div>
       </div>
     </div>

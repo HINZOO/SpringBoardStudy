@@ -28,6 +28,7 @@
     <!--유저정보만 필요하므로 u.*을 붙여준다.-->
     <select id="findByFromId" resultMap="UserMap">
         SELECT u.*
+            ,(true) following
             FROM follows f LEFT JOIN users u ON f.to_id=u.u_id
             WHERE from_id=#{uId}
     </select>
