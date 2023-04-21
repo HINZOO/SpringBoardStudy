@@ -70,3 +70,14 @@
             hasPreviousPage=true, hasNextPage=true,
             navigatePages=8,(현재 예시로는 15개의 페이지가 나오지만 그중 8개의 페이지가 눈에 보여진다.) navigateFirstPage=2, navigateLastPage=9,
             navigatepageNums=[2, 3, 4, 5, 6, 7, 8, 9]
+
+
+Mail발송
+
+[yml]
+1.smtp: simple mail transfer protocol  메일 보내주는 프로토콜
+    - 이때 포트 번호는 고정되어 바꿀 수 없다.
+    - 메일을 보내는 메일 주소와 패스워드를 입력해 둔다.
+    - 이때 계정을 만들어서 2차인증을 해야 됨.
+    .gitIgnore 에 application.yml 을 추가
+2. [service]  mineMessageHelper - 메일을 보낼때 사용하는 객체
