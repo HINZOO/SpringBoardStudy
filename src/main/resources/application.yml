@@ -24,7 +24,7 @@ spring:
     host: smtp.gmail.com #smtp를 사용하여 gmail로 보내겠다
     port: 587 #약속된 값으로 변경 불가
     username: hinge1128@gmail.com
-    password: angfxtlzgaaevngg #구글 2단계인증-> 2단계인증 상세-> 앱 비밀번호
+    password: 호롤롤로 #구글 2단계인증-> 2단계인증 상세-> 앱 비밀번호
     properties:
       mail:
         smtp:
