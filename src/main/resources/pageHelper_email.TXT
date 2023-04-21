@@ -1,0 +1,198 @@
+1. 페이징은 쿼리의 맨뒤에 작성한다.
+    1) 0번 인덱스 부터 총 5개(offset)를 보여주겠다.
+    SELECT * FROM boards LIMIT 0,5
+
+    2) 2번 페이지
+    SELECT * FROM boards LIMIT 5,5
+    ->2번 페이지
+
+    3) n번 페이지
+    -DESC : 내림차순정렬
+    SELECT * FROM boards DESC LIMIT ((page-1)*5),5;
+
+2. WHERE 절은 ORDER BY 안쪽
+    1) 열 을 포함하고 있는 콘텐츠를 찾는 쿼리.
+    SELECT * FORM boards WHERE  content like '%열%' ORDER BY update_time DESC;
+    = 과 like >> like는 유사한것을 말한다. like가 되어야 열이 들어간 친구들을 찾는데 사실 이대로는 안되고
+    %와일드 카드를 사용하여 작성해야 열이 들어간 글자를 찾을 수 있다.
+
+    2) 4번째에 열이 오는 것을 찾기.
+    SELECT * FORM boards WHERE  content like '___열%' ORDER BY update_time DESC;
+
+    3) 안녕하세요가 앞에 오는 쿼리
+    SELECT * FORM boards WHERE  content like '안녕하세요%' ORDER BY update_time DESC;
+
+    4) 앞쪽에 작성태그 첫글자가 오는 쿼리
+    SELECT * FROM hashtags WHERE tag like CONCAT(#{tag},'%');
+
+    5) 일반 검색 쿼리 (+페이징)
+    SELECT * FROM boards WHERE content like CONCAT ('%','열','%') ORDER BY update_time DESC LIMIT 0,5;
+3)검색 쿼리 작성시 유의사항
+    <select id="findAll" resultMap="BoardMap" parameterType="PageDto">
+        SELECT * FROM boards ORDER BY ${order} ${direct} LIMIT #{startIndex},#{offset}
+    </select>
+
+    6) 서치필드가 있으면 서치해서 결과 진행.
+        <select id="findAll" resultMap="BoardMap" parameterType="PageDto">
+            SELECT
+                * FROM boards
+                <if test="searchField!=null and searchValue!=null"> /*다이나믹 쿼리*/
+                    WHERE ${searchField} LIKE CONCAT('%',#{searchValue},'%')
+                </if>
+                  ORDER BY ${order} ${direct}
+                  LIMIT #{startIndex},#{offset}
+        </select>
+
+3.페이지헬퍼 -> 페이징은 해주고 서치는 우리가 만들어야함.
+
+        controller에서..
+            PageHelper.startPage(1,5,"b_id DESC");
+            PageInfo<BoardDto> pageBoards=new PageInfo<>(boards);
+            model.addAttribute("boards",pageBoards); 해주면
+            다음의 값들이 출력됨
+            isFristPage, isLastPage, hasNextPage, navigatePages,navigateFirstPage,navigateLastPage,navigatePageNums=[]
+            이때 addAttribute를 저렇게 같이 해버리면,어려움? 왜? =3=?
+
+            PageHelper.startPage(1,5,"b_id DESC");//현재페이지/오프셋/orderby
+                                                              //reasonable=true이면 페이지가 -1일때, 1번페이지로 취급해주는것.
+            boards=boardService.list(loginUser);
+            PageInfo<BoardDto> pageBoards=new PageInfo<>(boards);
+            model.addAttribute("page",pageBoards);
+            model.addAttribute("boards",boards);
+            리스트라는이름으로 다음의 내용들이 상단에 넘어가서 보드에서 b:list 라고 명명해준다.
+            list=Page{count=true, pageNum=1, pageSize=5, startRow=0, endRow=5, total=88, pages=18,//라스트페이지를 정할때 사용
+            reasonable=true, pageSizeZero=false}
+           -기본설정
+           컨트롤러에서 이렇게 해줄때,
+           PageHelper.startPage(6,5,"b_id DESC");
+           보드의 다음설정이 넘어감.
+            prePage=5, nextPage=7, isFirstPage=false, isLastPage=false,
+            hasPreviousPage=true, hasNextPage=true,
+            navigatePages=8,(현재 예시로는 15개의 페이지가 나오지만 그중 8개의 페이지가 눈에 보여진다.) navigateFirstPage=2, navigateLastPage=9,
+            navigatepageNums=[2, 3, 4, 5, 6, 7, 8, 9]
+
+
+
+😎 가입 이메일 체크 서비스 구현하기
+
+[yml]
+1.smtp: simple mail transfer protocol  메일 보내주는 프로토콜
+    - 이때 포트 번호는 고정되어 바꿀 수 없다.
+    - 메일을 보내는 메일 주소와 패스워드를 입력해 둔다.
+    - 이때 계정을 만들어서 2차인증을 해야 됨.
+    .gitIgnore 에 application.yml 을 추가
+2. [service]  mineMessageHelper - 메일을 보낼때 사용하는 객체
+
+[순서]
+1.종속성 추가
+   implementation 'org.springframework.boot:spring-boot-starter-mail:3.0.4'
+2. yml에 추가.
+  mail:
+    host: smtp.gmail.com #smtp를 사용하여 gmail로 보내겠다
+    port: 587 #약속된 값으로 변경 불가
+    username: hinge1128@gmail.com
+    password: 앱비밀번호 #구글 2단계인증-> 2단계인증 상세-> 앱 비밀번호
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+3.emailDto 생성
+ 이때 변수명은 마음대로 써도 된다.
+ 보내는 사람 / 제목 / 내용
+
+ 4.EmailService 생성
+ @Component 어노테이션 정의
+    (@Service 는 @Component 의 자식어노테이션으로
+    여러 Dao 를 실행하고 @Transaction 을 정의할 때 사용,
+     명시적인 목적도 있음. 우리는 DB를 만드는 것이 아니기에 서비스 어노테이션을 쓰지 않는다)
+  JavaMailSender 인터페이스 불러오고 생성자 추가(이메일을 보내는 인터페이스)
+  MimeMessage 클래스 불러오고 MimeMessageHelper 불러오기
+  mimeMessageHelper.setTo(emailDto.getToUser()); 예외위임.
+  몇가지 셋팅 후
+  javaMailSender.send(mimeMessage); 로 전송!
+
+       [*참고] 출처:https://www.baeldung.com/spring-email
+       Spring 프레임워크에서 Java 메일 지원을 위한 인터페이스 및 클래스는 다음과 같이 구성됩니다.
+       1)MailSender 인터페이스 : 간단한 이메일 전송을 위한 기본 기능을 제공하는 최상위 인터페이스
+       2)JavaMailSender 인터페이스 : 위 MailSender 의 하위 인터페이스입니다 . MIME 메시지를 지원하며 주로 MimeMessage 생성을 위해 MimeMessageHelper 클래스 와 함께 사용됩니다. 이 인터페이스와 함께 MimeMessagePreparator 메커니즘을 사용하는 것이 좋습니다.
+       3)JavaMailSenderImpl 클래스는 JavaMailSender 인터페이스  구현을 제공합니다. MimeMessage 및 SimpleMailMessage 를 지원합니다.
+       4)SimpleMailMessage 클래스 : 보낸 사람, 받는 사람, 참조, 제목 및 텍스트 필드를 포함하는 간단한 메일 메시지를 만드는 데 사용됩니다.
+       5)MimeMessagePreparator 인터페이스는 MIME 메시지 준비를 위한 콜백 인터페이스를 제공합니다.
+       6)MimeMessageHelper 클래스 : MIME 메시지 생성을 위한 도우미 클래스입니다. HTML 레이아웃의 이미지, 일반적인 메일 첨부 파일 및 텍스트 콘텐츠를 지원합니다.
+
+  5.테스트 돌려보기
+   emailService.sendMail(emailDto);//예외위임
+  6.DB 변경
+    # ALTER TABLE 테이블명 ADD COLUMN 칼럼명: 부분 적인 테이블 변경
+    ALTER TABLE users ADD COLUMN status    ENUM('SIGNUP','EMAIL_CHECK','BLOCK','LEAVE','REPORT') NOT NULL DEFAULT 'SIGNUP' COMMENT '계정상태';
+    ALTER TABLE users ADD COLUMN     email_check_code VARCHAR(8) COMMENT '이메일 확인 코드';
+  7.UserDto 값 변경(DB를 변경했음으로)
+    enum 을 public 설정-import를 하기 위해서.
+  8.UserMapper.java
+    int updateStatusByUIdAndEmailCheckCode(UserDto user);//이메일 체크 코드로 유저를 회원가입상태로 변동
+  9.UserMapper.xml
+     <update id="updateStatusByUIdAndEmailCheckCode">
+          UPDATE users SET status=#{status} WHERE u_id=#{uId} AND email_check_code=#{emailCheckCode}
+      </update>
+
+     insert 문에도 status,email_check_code 추가 해주기
+     resultMap에도 설정
+
+  10.UserController
+   0)EmailService 주입
+   [@PostMapping("/signUp.do)로 이동"]
+   1)8자리 난수생성
+       SecureRandom random=new SecureRandom();//난수생성//바이트인코딩으로 난수생성
+       byte[] bytes=new byte[6];
+       random.nextBytes(bytes);//랜덤 코드 생성
+       Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);//랜덤코드를 문자열로 인코딩(Base64)
+   2)유저 셋팅
+        user.setEmailCheckCode(emailCheckCode);
+        user.setStatus(UserDto.StatusType.EMAIL_CHECK);
+        가입이 성공할때 (signUp>0 이면)
+        메일을 보내도록 EmailDto 생성 후 셋팅한다.
+         EmailDto emailDto=new EmailDto();
+         emailDto.setToUser(user.getEmail());
+         emailDto.setTitle("테스트 웹사이트 이메일 확인코드");
+         emailDto.setMessage("<h2>해당 코드를 입력하세요</h2><br><h3>CODE : "+emailCheckCode+"</h3>");
+         emailService.sendMail(emailDto);
+    *파라미터로 uId의 값을 보내야 함(개인적인것이기 때문, 감출사항은 아니기에 세션이 아닌 파라미터로 보낸다)
+        본래 이렇게 써야 함.
+        return "redirect:/user/emailCheck.do?uId="+user.getUId();
+        하지만
+        redirectAttributes.addAttribute("uId",user.getUId());
+        return "redirect:/user/emailCheck.do";
+        이 작업을 하면 redirect 뒤에 파라미터로 자동으로 uId를 보냄.
+   3)@GetMapping("/emailCheck.do") 생성
+
+11.emailCheck.html 생성
+-interceptorConfig  .excludePathPatterns("/user/emailCheck.do")추가
+ <input type="text" name="uId" th:value="${param.uId}"> 로 파라미터가 잘 들어오는지 체크
+ 확인 후 type을 hidden으로 변경
+
+12.UserService
+    modifyEmailCheck 생성 UserDto를 담는다.
+13.UserSeviceImpl
+    생성 구현
+    int modifyEmailCheck=userMapper.updateStatusByUIdAndEmailCheckCode(user);
+
+14.UserController
+    @PostMapping("/emailCheck.do") 의 기본뼈대 만들기.
+
+15.UserController
+@PostMapping("/login.do") 에서
+이메일체크를 안하면 로그인이 안되도록 설정하기
+이메일체크를 안했을시 /emailCheck.do 로 넘어갈때 redirectAttributes.addAttribute("uId",loginUser.getUId())로  uId를 계속 전달해 줘야한다.
+   if(loginUser.getStatus()==UserDto.StatusType.EMAIL_CHECK){
+             redirectAttributes.addFlashAttribute("msg","이메일을 확인해야 가입이 완료됩니다.");
+             redirectAttributes.addAttribute("uId",loginUser.getUId());
+             return "redirect:/user/emailCheck.do";
+         }
+
+16. @PostMapping("/emailCheck.do")
+update 추가.
+ user.setStatus(UserDto.StatusType.SIGNUP);
+ emailCheck= userService.modifyEmailCheck(user);
+

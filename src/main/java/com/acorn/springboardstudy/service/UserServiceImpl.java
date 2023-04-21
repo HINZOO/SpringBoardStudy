@@ -39,6 +39,12 @@ public class UserServiceImpl implements UserService {
     public int dropout(UserDto user) {
         return userMapper.deleteByUIdAndPw(user);
     }
+
+    @Override
+    public int modifyEmailCheck(UserDto user) {
+       int modifyEmailCheck=userMapper.updateStatusByUIdAndEmailCheckCode(user);
+        return modifyEmailCheck;
+    }
 }
 //https://www.webjars.org/
 //

@@ -26,6 +26,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/user/**")//   .addPathPatterns(url) url 페이지는 오지않도록 해라.
                     .excludePathPatterns("/user/login.do")//login.do는 제외
                     .excludePathPatterns("/user/signup.do")//login.do는 제외
+                    .excludePathPatterns("/user/emailCheck.do")//는 제외
                 .addPathPatterns("/board/**")
                     .excludePathPatterns("/board/list.do")
                     .excludePathPatterns("/board/*/ajaxTagList.do")

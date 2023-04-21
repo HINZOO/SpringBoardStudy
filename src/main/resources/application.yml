@@ -20,6 +20,17 @@ spring:
         #임시저장소  user.dir : intelliJ 가 실행되는 폴더 (여기선 javascriptStudy2023)
       max-file-size: 1MB #이미지 크기 지정
       max-request-size: 5MB #default:10MB  1MB 이미지를 5개 등록할수있다.
+  mail:
+    host: smtp.gmail.com #smtp를 사용하여 gmail로 보내겠다
+    port: 587 #약속된 값으로 변경 불가
+    username: hinge1128@gmail.com
+    password: angfxtlzgaaevngg #구글 2단계인증-> 2단계인증 상세-> 앱 비밀번호
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 #지정설정
 img:

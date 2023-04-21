@@ -1,7 +1,9 @@
 package com.acorn.springboardstudy.controller;
 
+import com.acorn.springboardstudy.dto.EmailDto;
 import com.acorn.springboardstudy.dto.UserDto;
 import com.acorn.springboardstudy.lib.AESEncryption;
+import com.acorn.springboardstudy.service.EmailService;
 import com.acorn.springboardstudy.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.SecureRandom;
+import java.util.Base64;
+
 
 @AllArgsConstructor //lombok에서  컴파일 할때 모든 필드를  POJO 형식의 생성자로 만들어줌
 @Controller//< @Component 의 일종, 요청과 응답을 처리 가능
@@ -25,6 +30,8 @@ public class UserController {
     //@GetMapping 으로 정의한 함수 하나하나 가 동적페이지이다.
 
     private UserService userService;
+    private EmailService emailService;
+
     @GetMapping("/dropout.do")
     public String dropoutForm(
             @SessionAttribute UserDto loginUser){
@@ -114,6 +121,35 @@ public class UserController {
     }
     @GetMapping("/signup.do")
     public void signupForm(){}
+    @GetMapping("/emailCheck.do")
+    public void emailCheckFormForm(@RequestParam String uId){
+
+    }
+    @PostMapping("/emailCheck.do")
+    public String emailCheckAction(
+            UserDto user,
+            RedirectAttributes redirectAttributes){
+        String msg="";
+        String redirectPage="";
+        int emailCheck=0;
+        try{
+            user.setStatus(UserDto.StatusType.SIGNUP);
+            emailCheck= userService.modifyEmailCheck(user);
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
+        if(emailCheck>0){// 보낸코드와 생성된 코드가 같은 경우
+            msg="회원가입완료 로그인하세요.";
+            redirectPage="redirect:/user/login.do";
+        }else {
+            msg="이메일확인 코드가 같지 않습니다.";
+            redirectPage="redirect:/user/emailCheck.do";
+            redirectAttributes.addAttribute("uId",user.getUId());
+        }
+        redirectAttributes.addFlashAttribute("msg",msg);
+        return redirectPage;
+    }
+
 
     @PostMapping("/signup.do")
     public String signupAction(
@@ -125,20 +161,34 @@ public class UserController {
         int signup=0;
         String errMsg=null;
         try{
+            SecureRandom random=new SecureRandom();//난수생성//바이트인코딩으로 난수생성
+            byte[] bytes=new byte[6];
+            random.nextBytes(bytes);//랜덤 코드 생성
+            String emailCheckCode=Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);//랜덤코드를 문자열로 인코딩(Base64)
+            user.setEmailCheckCode(emailCheckCode);
+            user.setStatus(UserDto.StatusType.EMAIL_CHECK);
             signup=userService.signup(user);
+            if(signup>0){//회원가입이 성공하면 이메일을 확인
+                EmailDto emailDto=new EmailDto();
+                emailDto.setToUser(user.getEmail());
+                emailDto.setTitle("테스트 웹사이트 이메일 확인코드");
+                emailDto.setMessage("<h2>해당 코드를 입력하세요</h2><br><h3>CODE : "+emailCheckCode+"</h3>");
+                emailService.sendMail(emailDto);
+                redirectAttributes.addFlashAttribute("msg","기입한 이메일로 확인코드를 전송했습니다.이메일을 확인해야 회원가입이 가능합니다.");
+                //return "redirect:/user/emailCheck.do?uId="+user.getUId();
+                redirectAttributes.addAttribute("uId",user.getUId());//이 작업을 하면 redirect 뒤에 파라미터로 uId를 보냄.
+                return "redirect:/user/emailCheck.do";
+            }
+
         }catch (Exception e){
             log.error(e);
             errMsg=e.getMessage();
         }
-        if(signup>0) {
-            redirectAttributes.addFlashAttribute("msg","회원가입을 축하합니다!! 로그인하세요!");
-            return "redirect:/";
-        }else{
+
             redirectAttributes.addFlashAttribute("msg","회원가입 실패 에러 :"+errMsg);
             //상세한 에러정보이기 때문에 개발이 끝나면 삭제...
             return "redirect:/user/signup.do";
-        }
-    }
+   }
     @GetMapping("/logout.do")
     public String logoutAction(
             HttpSession session,
@@ -195,6 +245,13 @@ public class UserController {
             loginUser=userService.login(user);
          }catch (Exception e){
              log.error(e.getMessage());
+         }
+         if(loginUser!=null){
+             if(loginUser.getStatus()==UserDto.StatusType.EMAIL_CHECK){
+                 redirectAttributes.addFlashAttribute("msg","이메일을 확인해야 가입이 완료됩니다.");
+                 redirectAttributes.addAttribute("uId",loginUser.getUId());
+                 return "redirect:/user/emailCheck.do";
+             }
          }
         if(loginUser!=null){
             if(autoLogin!=null && autoLogin==1){

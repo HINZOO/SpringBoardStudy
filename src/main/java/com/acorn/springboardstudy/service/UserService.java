@@ -12,12 +12,13 @@ import org.springframework.stereotype.Service;
 @Service// @Component 의 자식 어노테이션 ; 서비스를 관리한다(관심사 분리)는 명시적의미와 @Transactional (롤백)을 정의 가능
 public interface UserService {
     //?? 유저는 어떤 서비스를 받을 수 있을까?
-    // 로그인   // 유저상세    // 유저정보 수정    // 회원가입    // 회원탈퇴
+    // 로그인   // 유저상세    // 유저정보 수정    // 회원가입    // 회원탈퇴 //이메일체크시 가입확인
     UserDto login(UserDto user);
     UserDto detail(String uId);
     int modify(UserDto user);
     int signup(UserDto user);
     int dropout(UserDto user);
+    int modifyEmailCheck(UserDto user);
 
 
 }
