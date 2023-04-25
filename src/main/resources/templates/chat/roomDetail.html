@@ -1,0 +1,55 @@
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+<div layout:fragment="content" >
+    <h1 class="my-4">
+        <span th:text="${crId}"></span>
+        채팅방 상세
+    </h1>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="text-center mb-0">채팅 내역</h2>
+        </div>
+        <div class="card-body">
+            <div>..님이 입장하셨습니다.</div>
+            <div>..님이 나가셨습니다.</div>
+        </div>
+        <div class="d-flex m-2">
+            <div class="align-self-start d-flex flex-column">
+                <strong>user01</strong>
+                <small>둘리</small>
+            </div>
+            <div class="bg-success bg-opacity-25 rounded-2 p-3 mx-2">
+                호이~ 빙하타고 내려와 우후~ 친구를 만났지만 ~
+                일억년전 옛날이 너무나 그리워 어여쁜 엄마찾아 모두 함께 떠나자 아아! 아아~~
+            </div>
+            <div class="align-self-end">
+               <small>2023-04-25 17:38:04</small>
+            </div>
+        </div>
+
+        <div class="d-flex m-2 justify-content-end">
+            <div class="align-self-end">
+                <small>2023-04-25 17:38:04</small>
+            </div>
+            <div class="bg-warning bg-opacity-25 rounded-2 p-3 mx-2">
+               뽀글뽀글뽀글뽀글 맛좋은라면 라면이 있기에 세상살맛나~
+                후루룹챱챱 후르르챱챱 맛조은라면~
+            </div>
+            <div class="align-self-start d-flex flex-column">
+                <strong>user02</strong>
+                <small>마이클</small>
+            </div>
+        </div>
+        <div class="card-footer">
+            <form action="" class="input-group">
+                <textarea class="form-control"></textarea>
+                <button class="btn btn-outline-primary"><i class="bi bi-send"></i></button>
+            </form>
+        </div>
+    </div>
+
+
+</div>
