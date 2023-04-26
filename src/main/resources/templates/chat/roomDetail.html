@@ -22,7 +22,7 @@
         <!--sendMsg-->
         <div class="card-footer">
             <!--채팅을 보내는 폼-->
-            <form  class="sendMsgForm">
+            <form  name="sendMsgForm">
                 <input type="hidden" name="uId" th:value="${session.loginUser.uId}">
                 <input type="hidden" name="crId" th:value="${crId}">
                 <input type="hidden" name="status" value="CHAT">
@@ -62,34 +62,34 @@
 
         //화면이 전체 로드 되는 이벤트
         document.addEventListener("DOMContentLoaded",async (e)=>{
-            await loadMsgs();
+            //await loadMsgs();
             // setInterval(async ()=>{
             //     await loadMsgs();
             // },3000);//무조건polling
 
-            //재귀함수 폴링시
-            //await autoLoadMsgs();
+            // 재귀함수 폴링시
+                await autoLoadMsgs();
         })
         //재귀함수로 로드된 시점에 폴링하기
-        // async function autoLoadMsgs(){
-        //     let result=await loadMsgs();
-        //     if(result){//로드 성공시
-        //         //재귀함수시
-        //         //await new Promise(resolve)=>setTimeout(()=>{},1000);
-        //         await autoLoadMsgs();
-        //     }
-        // }
+        async function autoLoadMsgs(){
+            let result=await loadMsgs();
+            if(result){//로드 성공시
+                //재귀함수시
+                await new Promise((resolve)=>setTimeout(()=>{},1000));
+                await autoLoadMsgs();
+            }
+        }
 
 
         //채팅메세지 등록
-        // sendMsgForm.onsubmit=async (e)=>{
-        //     e.preventDefault()
-        //     let register=await registerMsg(sendMsgForm);
-        //     if(register>0){
-        //         sendMsgForm.content.value="";
-        //         await loadMsgs();
-        //     }
-        // }
+        sendMsgForm.onsubmit=async (e)=>{
+            e.preventDefault()
+            let register=await registerMsg(sendMsgForm);
+            if(register>0){
+                sendMsgForm.content.value="";
+                await loadMsgs();
+            }
+        }
 
         //입장시도
         enterMsgForm.onsubmit=async(e)=>{
