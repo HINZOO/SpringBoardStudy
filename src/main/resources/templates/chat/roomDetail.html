@@ -12,44 +12,191 @@
         <div class="card-header">
             <h2 class="text-center mb-0">채팅 내역</h2>
         </div>
-        <div class="card-body">
-            <div>..님이 입장하셨습니다.</div>
-            <div>..님이 나가셨습니다.</div>
-        </div>
-        <div class="d-flex m-2">
-            <div class="align-self-start d-flex flex-column">
-                <strong>user01</strong>
-                <small>둘리</small>
-            </div>
-            <div class="bg-success bg-opacity-25 rounded-2 p-3 mx-2">
-                호이~ 빙하타고 내려와 우후~ 친구를 만났지만 ~
-                일억년전 옛날이 너무나 그리워 어여쁜 엄마찾아 모두 함께 떠나자 아아! 아아~~
-            </div>
-            <div class="align-self-end">
-               <small>2023-04-25 17:38:04</small>
-            </div>
-        </div>
 
-        <div class="d-flex m-2 justify-content-end">
-            <div class="align-self-end">
-                <small>2023-04-25 17:38:04</small>
-            </div>
-            <div class="bg-warning bg-opacity-25 rounded-2 p-3 mx-2">
-               뽀글뽀글뽀글뽀글 맛좋은라면 라면이 있기에 세상살맛나~
-                후루룹챱챱 후르르챱챱 맛조은라면~
-            </div>
-            <div class="align-self-start d-flex flex-column">
-                <strong>user02</strong>
-                <small>마이클</small>
-            </div>
+        <div class="card-body overflow-scroll" id="msgCont" style="height:60vh">
+            <!--기본틀을 잡고 컴포넌트로 생성-->
+            <!--enterMsg-->
+            <!--leaveMsg-->
         </div>
+        <!--reciveMsg-->
+        <!--sendMsg-->
         <div class="card-footer">
-            <form action="" class="input-group">
-                <textarea class="form-control"></textarea>
-                <button class="btn btn-outline-primary"><i class="bi bi-send"></i></button>
+            <!--채팅을 보내는 폼-->
+            <form  class="sendMsgForm">
+                <input type="hidden" name="uId" th:value="${session.loginUser.uId}">
+                <input type="hidden" name="crId" th:value="${crId}">
+                <input type="hidden" name="status" value="CHAT">
+                <input type="text" name="nickName" value="">
+                <div class="input-group">
+                    <textarea name="content" disabled class="form-control"></textarea>
+                    <button name="submitBtn" disabled class="btn btn-primary"><i class="bi bi-send"></i></button>
+                </div>
             </form>
         </div>
     </div>
+    <!--🎀 입장 폼-->
+    <form class="my-4" name="enterMsgForm">
+        <input type="hidden" name="uId" th:value="${session.loginUser.uId}">
+        <input type="hidden" name="crId" th:value="${crId}">
+        <input type="hidden" name="status" value="ENTER">
+        <input type="hidden" name="content" th:value="입장">
+        <div class="input-group mx-auto" style="width: 400px;">
+            <div class="form-floating">
+                <input class="form-control" name="nickName" type="text" placeholder="닉네임">
+                 <label>닉네임</label>
+            </div>
+            <button name="submitBtn" class="btn btn-success">입장</button>
+        </div>
+    </form>
+    <script th:inline="javascript">
+        // 1.컴포넌트 생성
+        // 2.채팅방 내역은 해당 방 번호만 출력 //CHAT 인데 로그인유저인것은 SEND 아닌건 LEAVE
+        let listUrl=`/chat/msg/[[${crId}]]/list.do`;//console에 listUrl을 쳐보고 번호 잘 들어오는지 확인
+        const msgCont =document.getElementById("msgCont");
+        const LOGIN_USER_ID=[[${session.loginUser.uId}]];//따옴표 필수~
+        //3.입장폼+채팅발송폼
+        const enterMsgForm=document.forms["enterMsgForm"];
+        const sendMsgForm=document.forms["sendMsgForm"];
+        let lastPostTime;//메세지를 로드하다가 마지막 메세지 등록 시간
+        //만약 if(lastPostTime)? listUrl에 postTime을 url에 보낸다.
 
+        //화면이 전체 로드 되는 이벤트
+        document.addEventListener("DOMContentLoaded",async (e)=>{
+            await loadMsgs();
+            // setInterval(async ()=>{
+            //     await loadMsgs();
+            // },3000);//무조건polling
+
+            //재귀함수 폴링시
+            //await autoLoadMsgs();
+        })
+        //재귀함수로 로드된 시점에 폴링하기
+        // async function autoLoadMsgs(){
+        //     let result=await loadMsgs();
+        //     if(result){//로드 성공시
+        //         //재귀함수시
+        //         //await new Promise(resolve)=>setTimeout(()=>{},1000);
+        //         await autoLoadMsgs();
+        //     }
+        // }
+
+
+        //채팅메세지 등록
+        // sendMsgForm.onsubmit=async (e)=>{
+        //     e.preventDefault()
+        //     let register=await registerMsg(sendMsgForm);
+        //     if(register>0){
+        //         sendMsgForm.content.value="";
+        //         await loadMsgs();
+        //     }
+        // }
+
+        //입장시도
+        enterMsgForm.onsubmit=async(e)=>{
+            e.preventDefault();
+            let register=await registerMsg(enterMsgForm);
+            if(register>0){
+                await loadMsgs();//성공하면 화면을 새로고침.
+                //입장에성공하면 또 입장못하도록 지정
+                enterMsgForm.nickName.setAttribute("disabled",'');
+                enterMsgForm.submitBtn.setAttribute("disabled",'');
+                sendMsgForm.nickName.value=enterMsgForm.nickName.value;
+                sendMsgForm.content.removeAttribute("disabled");
+                sendMsgForm.submitBtn.removeAttribute("disabled");
+            }else{
+                alert("입장실패")
+            }
+        }
+        async function registerMsg(formNode){//입장 또는 채팅내용을 채팅내역에 등록하는 메소드
+            let url="/chat/msg/register.do"
+            const data=new FormData(formNode);
+            const resp=await fetch (url,{method:"POST",body:data})
+            if(resp.status===200){
+                let register= await resp.text(); //"0"이면 실패 ,"1"이면 성공
+                return register;
+            }
+        }
+
+        //전체로드 리스트.
+        async function loadMsgs(){//해당 방번호의 리스트를 불러옴.
+            let url=listUrl;
+            if(lastPostTime) url+="?postTime="+lastPostTime; //마지막수정시간이 있는경우 파라미터로 수정시간을 보냄.
+            const response=await fetch(url);
+            if(response.status===200) {
+                const msgs = await response.json();
+                msgs.forEach((msg,i) => {
+                    if((msgs.length-1)===i){//현재 출력된 시간 이후의 내역들만 출력하고 싶을때
+                        lastPostTime=msg.postTime;
+                    }
+                    if (msg.status === 'CHAT') {
+                        if (LOGIN_USER_ID === msg.uId) {//로그인한 유저가 보낸 메세지
+                            msgCont.insertAdjacentHTML("beforeend", sendMsgComponent(msg));
+                        } else {
+                            msgCont.insertAdjacentHTML("beforeend", receiveMsgComponent(msg));
+                        }
+                    } else if (msg.status === 'ENTER') {
+                        msgCont.insertAdjacentHTML("beforeend", enterMsgComponent(msg));
+                    } else if (msg.status === 'LEAVE') {
+                        msgCont.insertAdjacentHTML("beforeend", leaveMsgComponent(msg));
+                    }
+                });
+            }
+        }
+
+        function enterMsgComponent(msgObj){
+            return `
+               <div class="text-center">
+                    <strong>${msgObj.nickName}</strong>
+                    <small>${msgObj.uId}</small>
+                    님이 입장하셨습니다.<br>
+                    <small class="text-muted">${msgObj.postTime}</small>
+               </div>
+            `;
+        }
+        function leaveMsgComponent(msgObj){
+            return `
+               <div class="text-center">
+                    <strong>${msgObj.nickName}</strong>
+                    <small>${msgObj.uId}</small>
+                    님이 퇴장하셨습니다.<br>
+                    <small class="text-muted">${msgObj.postTime}</small>
+               </div>
+            `;
+        }
+
+        function receiveMsgComponent(msgObj){
+            return`
+                <div class="d-flex m-2">
+                    <div class="align-self-start d-flex flex-column">
+                        <strong>${msgObj.nickName}</strong>
+                        <small>${msgObj.uId}</small>
+                    </div>
+                    <div class="bg-success bg-opacity-25 rounded-2 p-3 mx-2">
+                        ${msgObj.content}
+                    </div>
+                    <div class="align-self-end">
+                       <small class="text-muted">${msgObj.postTime}</small>
+                    </div>
+                </div>
+            `;
+        }
+
+        function sendMsgComponent(msgObj){
+            return `
+                <div class="d-flex m-2 justify-content-end">
+                    <div class="align-self-end">
+                    <small class="text-muted">${msgObj.postTime}</small>
+                    </div>
+                    <div class="bg-warning bg-opacity-25 rounded-2 p-3 mx-2">
+                          ${msgObj.content}
+                     </div>
+                     <div class="align-self-start d-flex flex-column">
+                        <strong>${msgObj.nickName}</strong>
+                        <small>${msgObj.uId}</small>
+                     </div>
+                </div>
+            `
+        }
+    </script>
 
 </div>
