@@ -42,6 +42,17 @@ CREATE TABLE boards
     view_count  INT UNSIGNED                               DEFAULT 0 COMMENT '조회수',
     FOREIGN KEY (u_id) REFERENCES users (u_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+CREATE TABLE exam_grid
+(
+    e_id        INT UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT '리스트 아이디',
+    u_id        VARCHAR(255) NOT NULL COMMENT '작성자 아이디',
+    name        VARCHAR(255) NOT NULL COMMENT '작성자 이름',
+    nation        VARCHAR(255) NOT NULL COMMENT '국가',
+    city        VARCHAR(255) NOT NULL COMMENT '도시',
+    to_time   DATE                     COMMENT '시작일',
+    from_time DATE                                 COMMENT '종료일',
+    gender         ENUM ('FEMALE','MALE') COMMENT '성별'
+);
 CREATE TABLE board_replies
 (
     br_id        INT UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT '게시글 댓글 아이디',
