@@ -119,7 +119,7 @@
                     <td class="col">
                         <select class="form-select" aria-label="gender" name="gender">
                             <option th:selected="(${e.gender.equals('MALE')})" value="MALE">남</option>
-                            <option th:selected="(${e.gender.equals('MALE')})" value="FEMALE">여</option>
+                            <option th:selected="(${e.gender.equals('FEMALE')})" value="FEMALE">여</option>
                         </select>
                     </td>
 
@@ -203,11 +203,7 @@
             }
     }
 
-    function list(){
-        let form = document.createElement("form");
-        form.setAttribute("method", "get");
-        form.setAttribute("action", "");
-    }
+
     </script>
 </div>
 

@@ -33,6 +33,7 @@ public class ExamPageDto {
     private String gender;
 
 
+
     public String getOrderBy() {
         if(this.order!=null && this.direct!=null) {
             return this.order+" "+this.direct;

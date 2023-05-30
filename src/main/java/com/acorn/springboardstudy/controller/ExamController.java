@@ -23,8 +23,11 @@ public class ExamController {
 
     @GetMapping("/list.do")
     public String list(Model model,
+                       @ModelAttribute ExamGridDto examGridDto,
                        @ModelAttribute ExamPageDto pageDto){
         List<ExamGridDto> examGridDtos;
+        pageDto.setName(examGridDto.getName());
+        pageDto.setUId(examGridDto.getUId());
         examGridDtos=examGridService.list(pageDto);
         PageInfo<ExamGridDto> pageExam=new PageInfo<>(examGridDtos);
         model.addAttribute("exam",examGridDtos);

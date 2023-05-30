@@ -17,10 +17,26 @@
     <delete id="deleteOne">
         DELETE FROM exam_grid WHERE e_id=#{eId}
     </delete>
-    <select id="findAll" resultMap="ExamMap" parameterType="ExamPageDto">
+    <select id="findAll" resultMap="ExamMap">
         SELECT * FROM exam_grid
-        <if test="name!=null">
-            WHERE ${name} LIKE CONCAT('%',#{name.value},'%')
+        WHERE 1=1
+        <if test="name != null and !name.isEmpty()">
+            AND name LIKE CONCAT('%',#{name},'%')
+        </if>
+        <if test="uId != null and !uId.isEmpty()">
+            AND u_id LIKE CONCAT('%',#{uId},'%')
+        </if>
+        <if test="nation != null and !nation.isEmpty()">
+            AND nation=#{nation}
+        </if>
+        <if test="city != null and !city.isEmpty()">
+            AND city=#{city}
+        </if>
+        <if test="gender != null and !gender.isEmpty()">
+            AND gender=#{gender}
+        </if>
+        <if test="toTime != null and !toTime.isEmpty()">
+            AND (to_time>=#{toTime} AND #{fromTime}>=from_time)
         </if>
     </select>
     <select id="findByEId"  resultMap="ExamMap">
