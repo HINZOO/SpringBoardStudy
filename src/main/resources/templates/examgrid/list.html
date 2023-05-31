@@ -10,21 +10,11 @@
     <script defer src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script defer src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
-<tr layout:fragment="content">
+<div layout:fragment="content">
     <h1>Grid 그리드</h1>
-    <p th:text="${exam}"></p>
-    <p th:text="${page}"></p>
-
     <hr>
         <div class="container text-center">
-            <form name="myForm" method="post" >
-<!--                <select name="searchField">-->
-<!--                    <option value="uId">아이디</option>-->
-<!--                    <option value="name">이름</option>-->
-<!--                    <option value="gender">성별</option>-->
-<!--                </select>-->
-<!--                <select name="searchValue">-->
-<!--                </select>-->
+            <form name="myForm" >
                 <div class="row">
                     <div class="col">
                         <div class="input-group mb-3">
@@ -50,7 +40,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col">
+                    <div class="col nation">
                         <select class="form-select" aria-label="nation"name="nation" onchange="categoryChange(this)">
                             <option value="" selected>국가</option>
                             <option value="korea">한국</option>
@@ -59,7 +49,7 @@
                         </select>
                     </div>
                     <div class="col">
-                        <select class="form-select" aria-label="city" name="city" id="city">
+                        <select class="form-select city" aria-label="city" name="city" id="city">
                             <option value="">도시</option>
                         </select>
                     </div>
@@ -79,8 +69,9 @@
                 </div>
                 <hr>
                 <div id="buttons" class="text-end">
-                    <button type="submit" class="btn btn-primary" onclick="mySubmit(1)" >저장</button>
-                    <button type="submit" class="btn btn-primary" onclick="mySubmit(2)" >조회</button>
+                    <button type="submit" class="btn btn-primary" formaction="./register.do" formmethod="post"> 저장</button>
+                    <button type="submit" class="btn btn-primary" formaction="./excelDown.do" formmethod="get"> 엑셀다운</button>
+                    <button type="submit" class="btn btn-primary" formaction=" " formmethod="get" >조회</button>
                     <button type="button" class="btn btn-primary" onclick="deleteSelected()" >삭제</button>
                 </div>
             </form>
@@ -105,40 +96,24 @@
                         <input type="checkbox" th:value="${e.getEId()}">
                     </th>
                     <td class="col">
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" name="uId" placeholder="아이디"
-                                   th:value="${e.uId}">
-                        </div>
+                      <p th:text="${e.getUId()}"></p>
                     </td>
                     <td class="col">
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" name="name" placeholder="이름"
-                            th:value="${e.name}">
-                        </div>
+                      <p th:text="${e.getName()}"></p>
                     </td>
                     <td class="col">
-                        <select class="form-select" aria-label="gender" name="gender">
-                            <option th:selected="(${e.gender.equals('MALE')})" value="MALE">남</option>
-                            <option th:selected="(${e.gender.equals('FEMALE')})" value="FEMALE">여</option>
-                        </select>
+                      <p th:text="${e.getGender()}"></p>
                     </td>
 
                     <td class="col">
-                        <select class="form-select" aria-label="nation" name="nation" onchange="categoryChange(this)">
-                            <option th:selected="(${e.nation.equals('korea')})" value="korea">한국</option>
-                            <option th:selected="(${e.nation.equals('america')})" value="america">미국</option>
-                            <option th:selected="(${e.nation.equals('japan')})" value="japan">일본</option>
-                        </select>
+                        <p th:text="${e.getNation()}"></p>
                     </td>
                     <td class="col">
-                        <select class="form-select" aria-label="city" name="city" >
-                            <option>도시</option>
-                        </select>
+                        <p th:text="${e.getCity()}"></p>
                     </td>
                 </tr>
             </tbody>
         </table>
-        <th:block th:include="pageNav"></th:block>
 
     <script>
         //멀티폼
@@ -146,20 +121,24 @@
             let city_korea=["서울","인천","경기","부산"];
             let city_america=["LA","NewYork"];
             let city_japan=["도쿄","훗카이도","나고야"];
-            let target=document.getElementById("city");
-            let d;
-            if(e.value=="korea"){d = city_korea;}
-            else if(e.value=="america"){ d = city_america;}
-            else if(e.value=="japan"){d = city_japan;}
-            console.log(target)
+            let target=document.getElementById('city');
             target.options.length=0;
+
+            let d;
+            if(e.value=="korea"){
+                d=city_korea;
+            }else if(e.value=="america"){
+                d=city_america;
+            }else if(e.value=="japan"){
+                d=city_japan;
+            }
             for(x in d){
                 let opt=document.createElement("option");
                 opt.value=d[x];
                 opt.innerHTML=d[x];
                 target.appendChild(opt);
             }
-        }
+         }
 
 
         //삭제
@@ -167,44 +146,32 @@
             let checkboxes = document.querySelectorAll('input[type="checkbox"]');
             let selectedIds = [];
             for (let i = 0; i < checkboxes.length; i++) {
-            if (checkboxes[i].checked) {
-            selectedIds.push(checkboxes[i].value);
-        }
-        }
+                if (checkboxes[i].checked) {
+                    selectedIds.push(checkboxes[i].value);
+                }
+            }
             if (selectedIds.length > 0) {
             if (confirm("선택한 항목을 삭제하시겠습니까?")) {
-            let form = document.createElement("form");
-            form.setAttribute("method", "post");
-            form.setAttribute("action", "./remove.do");
+                let form = document.createElement("form");
+                form.setAttribute("method", "post");
+                form.setAttribute("action", "./remove.do");
 
-            for (let i = 0; i < selectedIds.length; i++) {
-            let input = document.createElement("input");
-            input.setAttribute("type", "hidden");
-            input.setAttribute("name", "selectedIds");
-            input.setAttribute("value", selectedIds[i]);
-            form.appendChild(input);
-        }
-
-            document.body.appendChild(form);
-            form.submit();
-        }
-        } else {
-            alert("삭제할 항목을 선택해주세요.");
-        }
-        }
-    //멀티submit 구현
-    function mySubmit(index){
-            if(index==1){
-                document.myForm.action='./register.do';
+                for (let i = 0; i < selectedIds.length; i++) {
+                    let input = document.createElement("input");
+                    input.setAttribute("type", "hidden");
+                    input.setAttribute("name", "selectedIds");
+                    input.setAttribute("value", selectedIds[i]);
+                    form.appendChild(input);
+                }
+                document.body.appendChild(form);
+                form.submit();
             }
-            if(index==2){
-                document.myForm.method='get'
-                document.myForm.action='';
+            } else {
+                alert("삭제할 항목을 선택해주세요.");
             }
-    }
+        }
 
-
-    </script>
+   </script>
 </div>
 
 

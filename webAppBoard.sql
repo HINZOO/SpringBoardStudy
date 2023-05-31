@@ -49,8 +49,7 @@ CREATE TABLE exam_grid
     name        VARCHAR(255) NOT NULL COMMENT '작성자 이름',
     nation        VARCHAR(255) NOT NULL COMMENT '국가',
     city        VARCHAR(255) NOT NULL COMMENT '도시',
-    to_time   DATE                     COMMENT '시작일',
-    from_time DATE                                 COMMENT '종료일',
+    post_time      TIMESTAMP                NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '가입 시간',
     gender         ENUM ('FEMALE','MALE') COMMENT '성별'
 );
 CREATE TABLE board_replies

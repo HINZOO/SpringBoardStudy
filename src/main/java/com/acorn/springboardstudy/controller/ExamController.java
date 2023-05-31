@@ -3,11 +3,18 @@ package com.acorn.springboardstudy.controller;
 import com.acorn.springboardstudy.dto.*;
 import com.acorn.springboardstudy.service.ExamGridService;
 import com.github.pagehelper.PageInfo;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -26,13 +33,10 @@ public class ExamController {
                        @ModelAttribute ExamGridDto examGridDto,
                        @ModelAttribute ExamPageDto pageDto){
         List<ExamGridDto> examGridDtos;
-        pageDto.setName(examGridDto.getName());
-        pageDto.setUId(examGridDto.getUId());
         examGridDtos=examGridService.list(pageDto);
         PageInfo<ExamGridDto> pageExam=new PageInfo<>(examGridDtos);
         model.addAttribute("exam",examGridDtos);
-        model.addAttribute("page",pageExam);
-        return "/examgrid/list";
+        return "examgrid/list";
     }
 
 
@@ -59,5 +63,57 @@ public class ExamController {
         return "redirect:/examgrid/list.do";
     }
 
+    @GetMapping("/excelDown.do")
+    public void Excel(HttpServletResponse response,
+                      @ModelAttribute ExamPageDto pageDto)throws IOException {
+        List<ExamGridDto> list=examGridService.list(pageDto);
+        Workbook wb = new XSSFWorkbook();
+        Sheet sheet = wb.createSheet("examSheet");
+        Row row = null;
+        Cell cell = null;
+        int rowNum = 0;
+
+        // Header
+        row = sheet.createRow(rowNum++);
+        cell = row.createCell(0);
+        cell.setCellValue("번호");
+        cell = row.createCell(1);
+        cell.setCellValue("아이디");
+        cell = row.createCell(2);
+        cell.setCellValue("이름");
+        cell = row.createCell(3);
+        cell.setCellValue("성별");
+        cell = row.createCell(4);
+        cell.setCellValue("국가");
+        cell = row.createCell(5);
+        cell.setCellValue("도시");
+
+        // Body
+        for (ExamGridDto exam:list) {
+            row = sheet.createRow(rowNum++);
+            cell = row.createCell(0);
+            cell.setCellValue(list.indexOf(exam));
+            cell = row.createCell(1);
+            cell.setCellValue(exam.getUId());
+            cell = row.createCell(2);
+            cell.setCellValue(exam.getName());
+            cell = row.createCell(3);
+            cell.setCellValue(exam.getGender());
+            cell = row.createCell(4);
+            cell.setCellValue(exam.getNation());
+            cell = row.createCell(5);
+            cell.setCellValue(exam.getCity());
+        }
+
+        // 컨텐츠 타입과 파일명 지정
+        response.setContentType("ms-vnd/excel");
+        response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
+
+        // Excel File Output
+        wb.write(response.getOutputStream());
+        wb.close();
+
+
+    }
 
 }

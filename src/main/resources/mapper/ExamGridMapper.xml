@@ -7,12 +7,11 @@
         <result column="name" property="name"/>
         <result column="nation" property="nation"/>
         <result column="city" property="city"/>
-        <result column="to_time" property="toTime"/>
-        <result column="from_time" property="fromTime"/>
+        <result column="post_time" property="postTime"/>
         <result column="gender" property="gender"/>
     </resultMap>
     <insert id="insertOne" useGeneratedKeys="true" keyProperty="eId" parameterType="ExamGridDto">
-        INSERT INTO exam_grid (u_id,name, nation, city, to_time, from_time, gender)VALUES(#{uId},#{name},#{nation},#{city},#{toTime},#{fromTime},#{gender})
+        INSERT INTO exam_grid (u_id,name, nation, city, gender)VALUES(#{uId},#{name},#{nation},#{city},#{gender})
     </insert>
     <delete id="deleteOne">
         DELETE FROM exam_grid WHERE e_id=#{eId}
@@ -36,7 +35,7 @@
             AND gender=#{gender}
         </if>
         <if test="toTime != null and !toTime.isEmpty()">
-            AND (to_time>=#{toTime} AND #{fromTime}>=from_time)
+            AND (post_time>=#{toTime} AND #{fromTime}>=post_time)
         </if>
     </select>
     <select id="findByEId"  resultMap="ExamMap">

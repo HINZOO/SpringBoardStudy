@@ -20,8 +20,7 @@ public class ExamPageDto {
     private BoardsType order= BoardsType.e_id;
     private DirectType direct= DirectType.DESC;
 
-    private BoardsType searchField;
-    private String searchValue;
+
     private String orderBy;
 
     private String uId;
