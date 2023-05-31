@@ -18,8 +18,7 @@
                 <div class="row">
                     <div class="col">
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control" name="uId" placeholder="아이디"
-                            th:value="${param.searchValue}">
+                            <input type="text" class="form-control" name="uId" placeholder="아이디">
                         </div>
                     </div>
                     <div class="col">
@@ -30,8 +29,8 @@
                     <div class="col"></div>
                     <div class="col">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="gender" id="gender1" value="MALE">
-                            <label class="form-check-label" for="gender1">남</label>
+                            <input class="form-check-input" type="radio" name="gender" id="gender1" value="MALE" >
+                            <label class="form-check-label" for="gender1" >남</label>
                         </div>
                         <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="gender" id="gender2" value="FEMALE">
@@ -69,9 +68,9 @@
                 </div>
                 <hr>
                 <div id="buttons" class="text-end">
+                    <button type="submit" class="btn btn-primary" formaction=" " formmethod="get" >조회</button>
                     <button type="submit" class="btn btn-primary" formaction="./register.do" formmethod="post"> 저장</button>
                     <button type="submit" class="btn btn-primary" formaction="./excelDown.do" formmethod="get"> 엑셀다운</button>
-                    <button type="submit" class="btn btn-primary" formaction=" " formmethod="get" >조회</button>
                     <button type="button" class="btn btn-primary" onclick="deleteSelected()" >삭제</button>
                 </div>
             </form>
@@ -118,9 +117,9 @@
     <script>
         //멀티폼
         function categoryChange(e){
-            let city_korea=["서울","인천","경기","부산"];
+            let city_korea=["Seoul","Incheon","Daegu","Busan"];
             let city_america=["LA","NewYork"];
-            let city_japan=["도쿄","훗카이도","나고야"];
+            let city_japan=["Tokyo","Fukuoka","Osaka"];
             let target=document.getElementById('city');
             target.options.length=0;
 
@@ -170,6 +169,7 @@
                 alert("삭제할 항목을 선택해주세요.");
             }
         }
+
 
    </script>
 </div>

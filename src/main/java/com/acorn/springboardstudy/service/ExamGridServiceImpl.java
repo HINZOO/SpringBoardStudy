@@ -16,7 +16,7 @@ public class ExamGridServiceImpl implements ExamGridService{
 
     @Override
     public List<ExamGridDto> list(ExamPageDto pageDto) {
-        PageHelper.startPage(pageDto.getPageNum(), pageDto.getPageSize(),pageDto.getOrderBy());
+        //PageHelper.startPage(pageDto.getPageNum(), pageDto.getPageSize(),pageDto.getOrderBy());
         List<ExamGridDto> list=examGridMapper.findAll(pageDto);
         return list;
     }

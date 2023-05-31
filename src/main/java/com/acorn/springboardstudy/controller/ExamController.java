@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.List;
@@ -46,7 +47,8 @@ public class ExamController {
     }
 
     @PostMapping("/register.do")
-    public String registerAction(@ModelAttribute ExamGridDto examGridDto){
+    public String registerAction(@ModelAttribute ExamGridDto examGridDto,
+                                 RedirectAttributes redirectAttributes){
         int insert;
         insert=examGridService.register(examGridDto);
         return "redirect:/examgrid/list.do";
@@ -54,8 +56,10 @@ public class ExamController {
 
 
     @PostMapping("/remove.do")
-    public String deleteAction(@RequestParam("selectedIds") List<String> selectedIds){
-        int remove;
+    public String deleteAction(
+            @RequestParam("selectedIds") List<String> selectedIds)
+      {
+        int remove=0;
         for(String id:selectedIds){
             int eId=Integer.parseInt(id);
             remove=examGridService.remove(eId);
@@ -115,5 +119,6 @@ public class ExamController {
 
 
     }
+
 
 }
