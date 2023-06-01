@@ -12,5 +12,6 @@ public interface ExamGridMapper {
     List<ExamGridDto> findAll(ExamPageDto pageDto);
     ExamGridDto findByEId(int eId);
     int insertOne(ExamGridDto examGridDto);
+    int updateOne(ExamGridDto examGridDto);
     int deleteOne(int eId);
 }

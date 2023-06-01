@@ -1,0 +1,25 @@
+<tbody id="loadCont">
+<th:block  th:each="e:${exam}">
+  <tr th:ondblclick="loadModify([[${e.eId}]])" th:with="eId=${e.eId}">
+    <th scope="row">
+      <input type="checkbox" th:value="${e.getEId()}">
+    </th>
+    <td class="col">
+      <p th:text="${e.getUId()}"></p>
+    </td>
+    <td class="col">
+      <p th:text="${e.getName()}"></p>
+    </td>
+    <td class="col">
+      <p th:text="${e.getGender()}"></p>
+    </td>
+
+    <td class="col">
+      <p th:text="${e.getNation()}"></p>
+    </td>
+    <td class="col">
+      <p th:text="${e.getCity()}"></p>
+    </td>
+  </tr>
+</th:block>
+</tbody>

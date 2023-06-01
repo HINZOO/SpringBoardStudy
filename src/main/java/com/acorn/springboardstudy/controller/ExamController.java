@@ -4,6 +4,7 @@ import com.acorn.springboardstudy.dto.*;
 import com.acorn.springboardstudy.service.ExamGridService;
 import com.github.pagehelper.PageInfo;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -40,6 +41,16 @@ public class ExamController {
         return "examgrid/list";
     }
 
+    @GetMapping("/listBoard.do")
+    public String listBoard(Model model,
+                       @ModelAttribute ExamGridDto examGridDto,
+                       @ModelAttribute ExamPageDto pageDto){
+        List<ExamGridDto> examGridDtos;
+        examGridDtos=examGridService.list(pageDto);
+        PageInfo<ExamGridDto> pageExam=new PageInfo<>(examGridDtos);
+        model.addAttribute("exam",examGridDtos);
+        return "examgrid/listBoard";
+    }
 
 
     @GetMapping("/register.do")
@@ -120,5 +131,32 @@ public class ExamController {
 
     }
 
+    @Data
+    class HandlerDto{
+        private int handler;
+    }
+
+    @GetMapping("/{eId}/detail.do")
+    public @ResponseBody ExamGridDto detail(
+                         @PathVariable int eId){
+        ExamGridDto examGridDto=examGridService.detail(eId);
+        return examGridDto;
+    }//모달창 정보 받아오기.
+
+//    @GetMapping("/handler.do")
+//    public void modifyGetter(){
+//    }
+
+    @PutMapping("/handler.do")
+    public @ResponseBody HandlerDto modify(
+            @ModelAttribute ExamGridDto examGridDto
+    ){
+        System.out.println("데이터"+examGridDto);
+        HandlerDto handlerDto=new HandlerDto();
+        int modify=0;
+        modify=examGridService.modify(examGridDto);
+        handlerDto.setHandler(modify);
+        return handlerDto;
+    }//모달창 수정.
 
 }

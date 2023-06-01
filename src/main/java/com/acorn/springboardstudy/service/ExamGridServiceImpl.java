@@ -23,7 +23,6 @@ public class ExamGridServiceImpl implements ExamGridService{
 
     @Override
     public ExamGridDto detail(int eId) {
-
         ExamGridDto detail=examGridMapper.findByEId(eId);
         return detail;
     }
@@ -33,6 +32,13 @@ public class ExamGridServiceImpl implements ExamGridService{
         int register;
         register=examGridMapper.insertOne(examGridDto);
         return register;
+    }
+
+    @Override
+    public int modify(ExamGridDto examGridDto) {
+        int modify;
+        modify=examGridMapper.updateOne(examGridDto);
+        return modify;
     }
 
     @Override

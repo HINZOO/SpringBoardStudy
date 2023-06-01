@@ -13,6 +13,9 @@
     <insert id="insertOne" useGeneratedKeys="true" keyProperty="eId" parameterType="ExamGridDto">
         INSERT INTO exam_grid (u_id,name, nation, city, gender)VALUES(#{uId},#{name},#{nation},#{city},#{gender})
     </insert>
+    <update id="updateOne" parameterType="ExamGridDto">
+        UPDATE exam_grid SET u_id=#{uId},name=#{name},nation=#{nation},city=#{city},gender=#{gender} WHERE e_id=#{eId}
+    </update>
     <delete id="deleteOne">
         DELETE FROM exam_grid WHERE e_id=#{eId}
     </delete>
