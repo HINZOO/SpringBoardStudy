@@ -14,7 +14,7 @@
     <h1>Grid 그리드</h1>
     <hr>
         <div class="container text-center">
-            <form name="myForm" >
+            <form name="searchAndInsertForm" >
                 <div class="row">
                     <div class="col">
                         <div class="input-group mb-3">
@@ -69,7 +69,8 @@
                 <hr>
                 <div id="buttons" class="text-end">
                     <button type="submit" class="btn btn-primary" formaction=" " formmethod="get" >조회</button>
-                    <button type="submit" class="btn btn-primary" formaction="./register.do" formmethod="post"> 저장</button>
+                    <button type="submit" class="btn btn-primary" onclick="register()"> 저장</button>
+                    <button type="button" class="btn btn-primary" onclick="rowAddForm()"> 추가</button>
                     <button type="submit" class="btn btn-primary" formaction="./excelDown.do" formmethod="get"> 엑셀다운</button>
                     <button type="button" class="btn btn-primary" onclick="deleteSelected()" >삭제</button>
                 </div>
@@ -89,6 +90,8 @@
                 <th scope="col">도시</th>
             </tr>
             </thead>
+
+            <!--출력리스트-->
             <th:block th:include="/examgrid/listBoard.html"></th:block>
         </table>
 
@@ -278,6 +281,116 @@
                 loadCont.innerHTML=printText; // ajax 로 리스트 새로 불러오기
             }
         }
+
+        let indexNum=0;
+
+        const searchAndInsertForm=document.forms['searchAndInsertForm']
+        function rowAddForm(){
+            loadCont.insertAdjacentHTML("afterbegin",rowInputComponent());
+            indexNum+=1;
+            let rowInputForm=document.forms['rowInputForm'];
+        }
+
+        function rowInputComponent(){
+            return `
+                <tr>
+                <th scope="row">
+                    <input type="checkbox" >
+                </th>
+                <form name="rowInputForm">
+                <td class="col">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" name="uId" placeholder="아이디">
+                    </div>
+                </td>
+                <td class="col">
+                  <div class="input-group mb-3">
+                        <input type="text" class="form-control" name="name" placeholder="이름">
+                    </div>
+                </td>
+                <td class="col">
+                    <div class="row">
+                        <div class="mb-3 orm-check form-check col-3">
+                            <input class="form-check-input" type="radio" name="gender" id="gender5" value="MALE" >
+                            <label class="form-check-label" for="gender5">남</label>
+                        </div>
+                        <div class=" mb-3 form-check form-check col-3">
+                            <input class="form-check-input" type="radio" name="gender" id="gender6" value="FEMALE">
+                            <label class="form-check-label" for="gender6">녀</label>
+                        </div>
+                    </div>
+                </td>
+
+                <td class="col">
+                    <select class="form-select" aria-label="nation"name="nation" onchange="categoryChange(3,this)">
+                        <option value="" selected>국가</option>
+                        <option value="korea">한국</option>
+                        <option value="america">미국</option>
+                        <option value="japan">일본</option>
+                    </select>
+                </td>
+                <td class="col">
+                   <select class="form-select city" aria-label="city" name="city" id="city3">
+                        <option value="">도시</option>
+                    </select>
+                </td>
+                </form>
+                </tr>
+                `;
+        }
+
+        async function register(){
+            if(indexNum==0){
+                searchAndInsertForm.setAttribute("action","./register.do")
+                searchAndInsertForm.setAttribute("method","POST")
+                await searchAndInsertForm.onsubmit();
+                console.log(indexNum+"num이 작음")
+            }
+            if(indexNum>0){
+                // await to_ajax();
+                // alert("뭐..")
+                console.log(indexNum+"num이 큼.")
+                let rowInputForm=document.forms['rowInputForm'];
+                console.log(rowInputForm)
+                let url="/examgrid/handler.do";
+                const data=new FormData(rowInputForm);
+                //데이터확인
+                for (const [name, value] of data.entries()) {
+                    alert(name + ": " + value);
+                }
+
+                const resp=await fetch(url,{method:"POST", body:data});
+                if(resp.status===200){
+                    const json=await resp.json();
+                    if(json.handler>0){//"handler":"1"
+                        alert("등록완료");
+                        await loadPage();
+                    }
+                }else{
+                    alert("입력실패 status : " + resp.status);
+                }
+            }
+
+        }
+
+
+
+        // async function to_ajax() {
+        //     let formData = new FormData(rowInputForm);
+        //     let xhr = new XMLHttpRequest();
+        //     xhr.open("POST", "/examgrid/handler.do");
+        //     xhr.onreadystatechange = function () {
+        //         if (xhr.readyState === 4 && xhr.status === 200) {
+        //             let jsonResponse = JSON.parse(xhr.responseText);
+        //             alert(jsonResponse);
+        //         } else if (xhr.readyState === 4 && xhr.status !== 200) {
+        //             alert("Error: " + xhr.status);
+        //         }
+        //     };
+        //     xhr.send(formData);
+        // }
+
+
    </script>
 </div>
 

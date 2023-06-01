@@ -159,4 +159,16 @@ public class ExamController {
         return handlerDto;
     }//모달창 수정.
 
+    @PostMapping("/handler.do")
+    public @ResponseBody HandlerDto register(
+            @ModelAttribute ExamGridDto examGridDto
+    ){
+        System.out.println("추가데이터"+examGridDto);
+        HandlerDto handlerDto=new HandlerDto();
+        int rowRegister=0;
+        rowRegister=examGridService.register(examGridDto);
+        handlerDto.setHandler(rowRegister);
+        return handlerDto;
+    }//폼추가 등록 출력
+
 }
