@@ -132,6 +132,7 @@ public class ExamController {
     }
 
     @Data
+    static
     class HandlerDto{
         private int handler;
     }
@@ -152,7 +153,7 @@ public class ExamController {
             @ModelAttribute ExamGridDto examGridDto
     ){
         System.out.println("데이터"+examGridDto);
-        HandlerDto handlerDto=new HandlerDto();
+        HandlerDto handlerDto= new HandlerDto();
         int modify=0;
         modify=examGridService.modify(examGridDto);
         handlerDto.setHandler(modify);
@@ -164,11 +165,21 @@ public class ExamController {
             @ModelAttribute ExamGridDto examGridDto
     ){
         System.out.println("추가데이터"+examGridDto);
-        HandlerDto handlerDto=new HandlerDto();
+        HandlerDto handlerDto= new HandlerDto();
         int rowRegister=0;
-        rowRegister=examGridService.register(examGridDto);
+        rowRegister+=examGridService.register(examGridDto);
         handlerDto.setHandler(rowRegister);
         return handlerDto;
     }//폼추가 등록 출력
 
+    @GetMapping("/{uId}/checkId.do")
+    public @ResponseBody int idCheck(@PathVariable String uId){
+        ExamGridDto result=examGridService.idCheck(uId);
+        System.out.println("파라미터"+uId);
+        if(result!=null) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 }

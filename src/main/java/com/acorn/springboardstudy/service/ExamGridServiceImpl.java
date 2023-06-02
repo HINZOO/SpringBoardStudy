@@ -28,6 +28,12 @@ public class ExamGridServiceImpl implements ExamGridService{
     }
 
     @Override
+    public ExamGridDto idCheck(String uId) {
+        ExamGridDto idCheck=examGridMapper.findByUId(uId);
+        return idCheck;
+    }
+
+    @Override
     public int register(ExamGridDto examGridDto) {
         int register;
         register=examGridMapper.insertOne(examGridDto);

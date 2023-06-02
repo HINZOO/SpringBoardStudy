@@ -10,6 +10,7 @@ import java.util.List;
 public interface ExamGridService {
     List<ExamGridDto> list(ExamPageDto pageDto);
     ExamGridDto detail(int eId);
+    ExamGridDto idCheck(String uId);
     int register(ExamGridDto examGridDto);
     int modify(ExamGridDto examGridDto);
     int remove(int eId);

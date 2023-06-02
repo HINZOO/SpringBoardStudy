@@ -11,6 +11,7 @@ public interface ExamGridMapper {
     //리스트조회 //저장 //삭제
     List<ExamGridDto> findAll(ExamPageDto pageDto);
     ExamGridDto findByEId(int eId);
+    ExamGridDto findByUId(String uId);
     int insertOne(ExamGridDto examGridDto);
     int updateOne(ExamGridDto examGridDto);
     int deleteOne(int eId);
