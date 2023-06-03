@@ -35,6 +35,7 @@ public class ExamController {
                        @ModelAttribute ExamGridDto examGridDto,
                        @ModelAttribute ExamPageDto pageDto){
         List<ExamGridDto> examGridDtos;
+        System.out.println("리스트컨트롤러");//확인
         examGridDtos=examGridService.list(pageDto);
         PageInfo<ExamGridDto> pageExam=new PageInfo<>(examGridDtos);
         model.addAttribute("exam",examGridDtos);
@@ -47,7 +48,18 @@ public class ExamController {
                        @ModelAttribute ExamPageDto pageDto){
         List<ExamGridDto> examGridDtos;
         examGridDtos=examGridService.list(pageDto);
-        PageInfo<ExamGridDto> pageExam=new PageInfo<>(examGridDtos);
+        //PageInfo<ExamGridDto> pageExam=new PageInfo<>(examGridDtos);
+        model.addAttribute("exam",examGridDtos);
+        return "examgrid/listBoard";
+    }
+    @GetMapping("/{gender}/listBoard.do")
+    public String listLoadGender(Model model,
+                            @PathVariable String gender,
+                            @ModelAttribute ExamGridDto examGridDto,
+                            @ModelAttribute ExamPageDto pageDto){
+        List<ExamGridDto> examGridDtos;
+        examGridDtos=examGridService.list(pageDto);
+        pageDto.setGender(gender);
         model.addAttribute("exam",examGridDtos);
         return "examgrid/listBoard";
     }
@@ -164,7 +176,7 @@ public class ExamController {
     public @ResponseBody HandlerDto register(
             @ModelAttribute ExamGridDto examGridDto
     ){
-        System.out.println("추가데이터"+examGridDto);
+        System.out.println("추가데이터"+examGridDto);//확인
         HandlerDto handlerDto= new HandlerDto();
         int rowRegister=0;
         rowRegister+=examGridService.register(examGridDto);
@@ -178,7 +190,7 @@ public class ExamController {
         System.out.println("파라미터"+uId);
         if(result!=null) {
             return 1;
-        } else {
+        }else{
             return 0;
         }
     }

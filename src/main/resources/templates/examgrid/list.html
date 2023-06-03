@@ -20,7 +20,7 @@
                 <div class="row">
                     <div class="col">
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control" name="uId" placeholder="아이디">
+                            <input type="text" class="form-control" name="uId" placeholder="아이디" >
                         </div>
                     </div>
                     <div class="col">
@@ -31,12 +31,14 @@
                     <div class="col"></div>
                     <div class="col">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="gender" id="gender1" value="MALE" >
-                            <label class="form-check-label" for="gender1">남</label>
+                            <label class="form-check-label">
+                            <input class="form-check-input" type="radio" name="gender" onclick="searchGender(event)" value="MALE" >
+                            남</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="gender" id="gender2" value="FEMALE">
-                            <label class="form-check-label" for="gender2">녀</label>
+                            <label class="form-check-label">
+                            <input class="form-check-input" type="radio" name="gender" onclick="searchGender(event)"value="FEMALE">
+                            녀</label>
                         </div>
                     </div>
                 </div>
@@ -70,9 +72,9 @@
                 </div>
                 <hr>
                 <div id="buttons" class="text-end">
-                    <button type="submit" class="btn btn-primary" formaction=" " formmethod="get" >조회</button>
+                    <button type="submit" class="btn btn-primary" formaction="./list.do" formmethod="get" >조회</button>
                     <button type="button" class="btn btn-primary" onclick="addRow()"> 추가</button>
-                    <button type="submit" class="btn btn-primary" onclick="register()"> 저장</button>
+                    <button type="submit" class="btn btn-primary" onclick="register()" id="registerBtn"> 저장</button>
                     <button type="submit" class="btn btn-primary" formaction="./excelDown.do" formmethod="get"> 엑셀다운</button>
                     <button type="button" class="btn btn-primary" onclick="deleteSelected()" >삭제</button>
                 </div>
@@ -82,7 +84,7 @@
 
 
 <!--출력페이지 --------------------------------------------------------------------------->
-        <form id="hiddenForm" >
+        <form id="hiddenForm" name="hiddenForm" >
         <table id="printTable" class="table">
             <thead>
             <tr>
@@ -107,7 +109,7 @@
                     <h5 class="modal-title">수정</h5>
                 </div>
                 <div class="modal-body">
-                    <form name="modifyForm" method="post">
+                    <form name="modifyForm"  >
                         <input type="hidden" name="eId" th:value="${eId}">
                         <div class="row">
                             <div class="col">
@@ -131,11 +133,11 @@
                             </div>
                             <div class="mb-3 orm-check form-check col-3">
                                 <input class="form-check-input" type="radio" name="gender" id="gender3" value="MALE" >
-                                <label class="form-check-label" for="gender1">남</label>
+                                <label class="form-check-label" for="gender3">남</label>
                             </div>
                             <div class=" mb-3 form-check form-check col-3">
                                 <input class="form-check-input" type="radio" name="gender" id="gender4" value="FEMALE">
-                                <label class="form-check-label" for="gender2">녀</label>
+                                <label class="form-check-label" for="gender4">녀</label>
                             </div>
                         </div>
                         <div class="row">
@@ -173,27 +175,40 @@
 
     <script th:inline="javascript">
         let indexNum=0;
-        const hiddenForm=document.getElementById('hiddenForm');
+        let isChk;
+        let idCheckNum=2; //1이면 중복 0이면 중복X 2이면 기존아이디그대로수정.
+        const hiddenForm=document.forms["hiddenForm"];
         const modifyForm=document.forms["modifyForm"];
         const modifyModal=new bootstrap.Modal(document.getElementById("modifyModal"), {});
         const searchAndInsertForm=document.forms['searchAndInsertForm'];
         let loadCont=document.getElementById('loadCont');
+        let registerBtn=document.getElementById('registerBtn');
+
+
+        function handleModalSubmit(event) {
+            event.preventDefault();
+        }
+        modifyForm.addEventListener('submit', handleModalSubmit);
+
+        // 국가와 도시 데이터
+        const countryData = {
+            korea: ["Seoul","Incheon","Daegu","Busan"],
+            america: ["LA","NewYork"],
+            japan: ["Tokyo","Fukuoka","Osaka"]
+        };
 
         //멀티폼
         function categoryChange(id,e){
-            let city_korea=["Seoul","Incheon","Daegu","Busan"];
-            let city_america=["LA","NewYork"];
-            let city_japan=["Tokyo","Fukuoka","Osaka"];
             let target=document.getElementById(`city${id}`);
             target.options.length=0;
 
             let d;
-            if(e.value=="korea"){
-                d=city_korea;
-            }else if(e.value=="america"){
-                d=city_america;
-            }else if(e.value=="japan"){
-                d=city_japan;
+            if(e.value==="korea"){
+                d=countryData.korea
+            }else if(e.value==="america"){
+                d=countryData.america;
+            }else if(e.value==="japan"){
+                d=countryData.japan;
             }
             for(let x in d){
                 let opt=document.createElement("option");
@@ -262,9 +277,13 @@
             }
         }
 
-            async function modifyAction() {
+        async function modifyAction() {
+            isChk=await formCheck(event,"modifyForm");
+            console.log(isChk)
+            if(isChk===true){
                 modifyModal.hide();
-              let url="/examgrid/handler.do";
+                await hiddenForm.submit();
+                let url="/examgrid/handler.do";
                 const data=new FormData(modifyForm);
                 const resp=await fetch(url,{method:"PUT", body:data});
                 if(resp.status===200){
@@ -278,201 +297,231 @@
                 }
             }
 
-        async function register(){
-            if(indexNum===0){
-                searchAndInsertForm.setAttribute("action","./register.do")
-                searchAndInsertForm.setAttribute("method","POST")
-                await searchAndInsertForm.onsubmit();
-            }
-            if(indexNum>0){
-               await saveData();
-            }
 
         }
 
-
-         function addRow(){
-            indexNum+=1
-             console.log(Array.from(hiddenForm.children)[0])
-            //아이디,이름,성별,국가,도시
-            let table=document.getElementById(("printTable"));
-            let newRow=loadCont.insertRow(0);
-            let checkCell=newRow.insertCell(0);
-            let uIdCell=newRow.insertCell(1);
-            let nameCell=newRow.insertCell(2);
-            let genderCell=newRow.insertCell(3);
-            let nationCell=newRow.insertCell(4);
-            let cityCell=newRow.insertCell(5);
-
-            let checkInput=document.createElement("input")
-            checkInput.type="checkbox"
-            checkCell.appendChild(checkInput);
-            let uIdInput=document.createElement("input")
-            uIdInput.type="text"
-            uIdInput.name="uId"
-            uIdCell.appendChild(uIdInput);
-
-            let userNameInput=document.createElement("input")
-            userNameInput.type="text"
-            userNameInput.name="name"
-            nameCell.appendChild(userNameInput);
-
-            let genderCont=document.createElement("div")
-            let maleLabel=document.createElement("label")
-            maleLabel.textContent="남"
-            let femaleLabel=document.createElement("label")
-            femaleLabel.textContent="녀"
-
-            let maleRadio = document.createElement("input");
-            maleRadio.type = "radio";
-            maleRadio.name = "gender";
-            maleRadio.value = "male";
-            maleRadio.checked=true;
-            let femaleRadio = document.createElement("input");
-            femaleRadio.type = "radio";
-            femaleRadio.name = "gender";
-            femaleRadio.value = "female";
-            genderCont.appendChild(maleLabel);
-            genderCont.appendChild(maleRadio);
-            genderCont.appendChild(femaleLabel);
-            genderCont.appendChild(femaleRadio);
-            genderCell.appendChild(genderCont);
+        async function register() {
+            if (indexNum === 0) {
+                searchAndInsertForm.setAttribute("action", "./register.do")
+                searchAndInsertForm.setAttribute("method", "POST")
+                isChk = await formCheck(event, "searchAndInsertForm");
+                if (isChk === true) {
+                    await searchAndInsertForm.submit();
+                }
+            }
+            if (indexNum > 0) {
+                await saveData();
+            }
+        }
 
 
-            // 국가와 도시 데이터
-            const countryData = {
-                korea: ["Seoul","Incheon","Daegu","Busan"],
-                america: ["LA","NewYork"],
-                japan: ["Tokyo","Fukuoka","Osaka"]
-            };
-            let nationSelect = document.createElement("select");
-            nationSelect.name = "nation";
-            nationSelect.addEventListener("change", function() {
-                let selectedCountry = nationSelect.value;
-                let cityOptions = countryData[selectedCountry];
+            function addRow() {
+                indexNum += 1
+                //아이디,이름,성별,국가,도시
+                let table = document.getElementById(("printTable"));
+                let newRow = loadCont.insertRow(0);
+                let checkCell = newRow.insertCell(0);
+                let uIdCell = newRow.insertCell(1);
+                let nameCell = newRow.insertCell(2);
+                let genderCell = newRow.insertCell(3);
+                let nationCell = newRow.insertCell(4);
+                let cityCell = newRow.insertCell(5);
 
-                citySelect.innerHTML = ""; // 기존 도시 옵션을 초기화합니다.
+                let checkInput = document.createElement("input")
+                checkInput.type = "checkbox"
+                checkCell.appendChild(checkInput);
+                let uIdInput = document.createElement("input")
+                uIdInput.type = "text"
+                uIdInput.name = "uId"
+                // uIdInput.setAttribute("onchange","idCheckAddRow()")
+                uIdCell.appendChild(uIdInput);
 
-                if (cityOptions) {
-                    for (let i = 0; i < cityOptions.length; i++) {
-                        let cityOption = document.createElement("option");
-                        cityOption.value = cityOptions[i];
-                        cityOption.textContent = cityOptions[i];
-                        citySelect.appendChild(cityOption);
+                let userNameInput = document.createElement("input")
+                userNameInput.type = "text"
+                userNameInput.name = "name"
+                nameCell.appendChild(userNameInput);
+
+                let genderCont = document.createElement("div")
+                let maleLabel = document.createElement("label")
+                maleLabel.textContent = "남"
+                let femaleLabel = document.createElement("label")
+                femaleLabel.textContent = "녀"
+
+                let maleRadio = document.createElement("input");
+                maleRadio.type = "radio";
+                maleRadio.name = "gender";
+                maleRadio.value = "male";
+                maleRadio.checked = true;
+                let femaleRadio = document.createElement("input");
+                femaleRadio.type = "radio";
+                femaleRadio.name = "gender";
+                femaleRadio.value = "female";
+                genderCont.appendChild(maleLabel);
+                genderCont.appendChild(maleRadio);
+                genderCont.appendChild(femaleLabel);
+                genderCont.appendChild(femaleRadio);
+                genderCell.appendChild(genderCont);
+
+                let nationSelect = document.createElement("select");
+                nationSelect.name = "nation";
+                nationSelect.addEventListener("change", function () {
+                    let selectedCountry = nationSelect.value;
+                    let cityOptions = countryData[selectedCountry];
+
+                    citySelect.innerHTML = ""; // 기존 도시 옵션을 초기화합니다.
+
+                    if (cityOptions) {
+                        for (let i = 0; i < cityOptions.length; i++) {
+                            let cityOption = document.createElement("option");
+                            cityOption.value = cityOptions[i];
+                            cityOption.textContent = cityOptions[i];
+                            citySelect.appendChild(cityOption);
+                        }
+                    }
+                });
+
+                let citySelect = document.createElement("select");
+                citySelect.name = "city";
+
+                for (let country in countryData) {
+                    let countryOption = document.createElement("option");
+                    countryOption.value = country;
+                    countryOption.textContent = country;
+                    nationSelect.appendChild(countryOption);
+                }
+                nationCell.appendChild(nationSelect);
+                cityCell.appendChild(citySelect);
+
+            }
+
+            async function saveData() {
+                isChk = await formCheck(event, "hiddenForm");
+                if (isChk === true) {
+                    await hiddenForm.submit();
+                    let url = `/examgrid/handler.do`
+                    const data = new FormData(hiddenForm);
+                    const resp = await fetch(url, {method: "POST", body: data});
+                    if (resp.status === 200) {
+                        const json = await resp.json();
+                        if (json.handler > 0) {
+                            alert("등록성공");
+                            await loadPage();
+                        }
+                        console.log(json);//확인
                     }
                 }
+            }
+
+            async function loadPage() {
+                let url = `/examgrid/listBoard.do`
+                const resp = await fetch(url);
+                if (resp.status === 200) {
+                    let printText = await resp.text();
+                    loadCont.innerHTML = printText; // ajax 로 리스트 새로 불러오기
+                }
+            }
+
+            //유효성검사 (입력폼)
+            async function idCheck(uId) {
+                const resp = await fetch(`/examgrid/${uId}/checkId.do`);
+                const result = await resp.json();
+                return result;
+                /*          if(result>0){
+                          alert("이미 존재하는 아이디입니다.")
+                          if(modifyModal){
+                              let saveButton = document.querySelector('#modifyModal .modal-content button[type="button"]');
+                              saveButton.disabled = true;
+                          }
+                      }else{
+                          alert("사용 가능한 아이디입니다.")
+                          if(modifyModal){
+                              let saveButton = document.querySelector('#modifyModal .modal-content button[type="button"]');
+                              saveButton.disabled = false;
+                          }
+                      }*/
+            }
+
+            async function formCheck(e, formName) {
+                e.preventDefault();
+                let form = document.forms[`${formName}`];
+                console.log(form);//확인
+                let uId = form.uId.value;
+                let name = form.name.value;
+                let genderChk = false;
+                for (let i = 0; i < form.gender.length; i++) {
+                    if (form.gender[i].checked === true) {//성별의 i가 체크되면, true
+                        genderChk = true;//트루이면 체크된것.
+                    }
+                }
+                let nation = form.nation.value;
+                let city = form.city.value;
+
+                let idCheckResult = await idCheck(uId);
+
+                console.log("결과값출력" + uId + name + genderChk + nation + city)//확인
+                if (idCheckResult > 0) {
+                    alert("이미 존재하는 아이디입니다.")
+                    isChk = false;
+                    return isChk;
+
+                } else {
+                    if (uId === "" || name === "" || genderChk === false || nation === "" || city === "") {
+                        alert("값을 다 기입하세요.");
+                        isChk = false;
+                        return isChk;
+                    } else {
+                        isChk = true
+                        return isChk;
+                    }
+                }
+        }
+        //남녀 검색
+    /*    document.addEventListener('DOMContentLoaded', function() {
+            let maleRadio = document.getElementById('searchMale');
+            let femaleRadio = document.getElementById('searchFemale');
+
+            maleRadio.addEventListener('toggle', function() {
+                if (this.checked) {
+                    send();
+                    this.checked=true;
+                    femaleRadio.checked=false;
+                    function send(){
+                        location.href='list.do?gender=male'
+                    }
+                }
+                return false;
             });
 
-            let citySelect = document.createElement("select");
-            citySelect.name = "city";
-
-            for (let country in countryData) {
-                let countryOption = document.createElement("option");
-                countryOption.value = country;
-                countryOption.textContent = country;
-                nationSelect.appendChild(countryOption);
-            }
-            nationCell.appendChild(nationSelect);
-            cityCell.appendChild(citySelect);
-
-     }
-
-        async function saveData() {
-             let url="/examgrid/handler.do"
-            const data=new FormData(hiddenForm);
-            const resp=await fetch(url,{method:"POST",body:data});
-            if(resp.status===200){
-                const json=await resp.json();
-                if(json.handler>0){
-                    alert("등록성공");
-                    await loadPage();
+            femaleRadio.addEventListener('toggle', function() {
+                if (this.checked) {
+                    femaleSend();
+                    this.checked=true
+                    maleRadio.checked=false;
+                    function femaleSend() {
+                        location.href = 'list.do?gender=female'
+                    }
                 }
-                console.log(json);
-            }
+                return false;
+            });
 
+
+        });*/
+        //onclick 이벤트로 검색해주기//ajax사용.
+        async function searchGender(event){
+            await loadGenderPage(event.target.value)
         }
 
-    async function loadPage(){
-        let url=`/examgrid/listBoard.do`
-        const resp=await fetch(url);
-        if(resp.status===200){
-            let printText=await resp.text();
-            loadCont.innerHTML=printText; // ajax 로 리스트 새로 불러오기
-        }
-    }
-    //유효성검사 (입력폼)
-        const uIdInput=document.searchAndInsertForm.uId;
-        const uIdInputModi=document.modifyForm.uId;
-       searchAndInsertForm.onsubmit=async function (e){
-           e.preventDefault();
-            let uId=document.searchAndInsertForm.uId.value;
-            let name=document.searchAndInsertForm.name.value;
-            let genderChk=false;
-            for(let i=0;i<searchAndInsertForm.gender.length;i++){
-                if(searchAndInsertForm.gender[i].checked===true){//성별의 i가 체크되면, true
-                    genderChk=true;//트루이면 체크된것.
-                }
-            }
-            let nation=document.searchAndInsertForm.nation.value;
-            let city=document.searchAndInsertForm.city.value;
-            console.log(uId,name,genderChk,nation,city)
-            if(uId=="" || name=="" || genderChk==false || nation=="" || city==""){
-                alert("값을 다 기입하세요.")
-            }else{
-                await searchAndInsertForm.submit();
+        async function loadGenderPage(gender) {
+            let url = `/examgrid/${gender}/listBoard.do`
+            const resp = await fetch(url);
+            if (resp.status === 200) {
+                let printText = await resp.text();
+                loadCont.innerHTML = printText; // ajax 로 리스트 새로 불러오기
             }
         }
 
-        uIdInput.addEventListener("change",async function(){
-            let uId=document.searchAndInsertForm.uId.value;
-            const resp=await fetch(`/examgrid/${uId}/checkId.do`);
-            const result=await resp.json();
-            if(result>0){
-                alert("이미 사용중인 아이디입니다.")
-                searchAndInsertForm.addEventListener("submit",(e)=>{
-                    e.preventDefault();
-                })
-            }else{
-                alert("사용 가능한 아이디입니다.")
-            }
-        })
 
-    //유효성검사 (수정폼)
-        modifyForm.onsubmit=async function (e){
-            e.preventDefault();
-            let uId=document.modifyForm.uId.value;
-            let name=document.modifyForm.name.value;
-            let genderChk=false;
-            for(let i=0;i<modifyForm.gender.length;i++){
-                if(modifyForm.gender[i].checked===true){//성별의 i가 체크되면, true
-                    genderChk=true;//트루이면 체크된것.
-                }
-            }
-            let nation=document.modifyForm.nation.value;
-            let city=document.modifyForm.city.value;
-            console.log(uId,name,genderChk,nation,city)
-            if(uId=="" || name=="" || genderChk==false || nation=="" || city==""){
-                alert("값을 다 기입하세요.")
-            }else{
-                await modifyForm.submit();
-            }
-        }
-
-        uIdInputModi.addEventListener("change",async function(){
-            let uIdModi=document.modifyForm.uId.value;
-            console.log(uIdModi);
-            const resp=await fetch(`/examgrid/${uIdModi}/checkId.do`);
-            const result=await resp.json();
-            if(result>0){
-                alert("이미 사용중인 아이디입니다.")
-                modifyForm.addEventListener("submit",(e)=>{
-                    e.preventDefault();
-                })
-            }else{
-                alert("사용 가능한 아이디입니다.")
-            }
-        })
-   </script>
+    </script>
 </div>
 
 
