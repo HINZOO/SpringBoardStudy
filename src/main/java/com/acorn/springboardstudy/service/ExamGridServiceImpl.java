@@ -5,6 +5,7 @@ import com.acorn.springboardstudy.dto.ExamPageDto;
 import com.acorn.springboardstudy.mapper.ExamGridMapper;
 import com.github.pagehelper.PageHelper;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,9 +16,8 @@ public class ExamGridServiceImpl implements ExamGridService{
     private ExamGridMapper examGridMapper;
 
     @Override
-    public List<ExamGridDto> list(ExamPageDto pageDto) {
-        //PageHelper.startPage(pageDto.getPageNum(), pageDto.getPageSize(),pageDto.getOrderBy());
-        List<ExamGridDto> list=examGridMapper.findAll(pageDto);
+    public List<ExamGridDto> list(ExamGridDto examGridDto) {
+        List<ExamGridDto>list = examGridMapper.findAll(examGridDto);
         return list;
     }
 

@@ -10,6 +10,8 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +26,7 @@ import java.util.List;
 @Log4j2
 public class ExamController {
 
-    private ExamGridService examGridService;
+    private final ExamGridService examGridService;
 
     public ExamController(ExamGridService examGridService) {
         this.examGridService = examGridService;
@@ -32,36 +34,42 @@ public class ExamController {
 
     @GetMapping("/list.do")
     public String list(Model model,
-                       @ModelAttribute ExamGridDto examGridDto,
-                       @ModelAttribute ExamPageDto pageDto){
+                       @ModelAttribute ExamGridDto examGridDto){
         List<ExamGridDto> examGridDtos;
-        System.out.println("리스트컨트롤러");//확인
-        examGridDtos=examGridService.list(pageDto);
-        PageInfo<ExamGridDto> pageExam=new PageInfo<>(examGridDtos);
+        examGridDtos=examGridService.list(examGridDto);
         model.addAttribute("exam",examGridDtos);
         return "examgrid/list";
     }
 
-    @GetMapping("/listBoard.do")
-    public String listBoard(Model model,
-                       @ModelAttribute ExamGridDto examGridDto,
-                       @ModelAttribute ExamPageDto pageDto){
+    @PostMapping("/list.do")
+    public String listPost(Model model,
+                       @ModelAttribute ExamGridDto examGridDto){
         List<ExamGridDto> examGridDtos;
-        examGridDtos=examGridService.list(pageDto);
-        //PageInfo<ExamGridDto> pageExam=new PageInfo<>(examGridDtos);
+        examGridDtos=examGridService.list(examGridDto);
         model.addAttribute("exam",examGridDtos);
-        return "examgrid/listBoard";
+        return "examgrid/list";
     }
+
+
     @GetMapping("/{gender}/listBoard.do")
     public String listLoadGender(Model model,
                             @PathVariable String gender,
-                            @ModelAttribute ExamGridDto examGridDto,
-                            @ModelAttribute ExamPageDto pageDto){
+                            @ModelAttribute ExamGridDto examGridDto){
         List<ExamGridDto> examGridDtos;
-        examGridDtos=examGridService.list(pageDto);
-        pageDto.setGender(gender);
+        examGridDtos=examGridService.list(examGridDto);
+        examGridDto.setGender(gender);
         model.addAttribute("exam",examGridDtos);
         return "examgrid/listBoard";
+    }
+
+
+    @GetMapping("/listBoard.do")
+    public @ResponseBody List<ExamGridDto>listBoard(Model model,
+                               @ModelAttribute ExamGridDto examGridDto){
+       List<ExamGridDto>list=examGridService.list(examGridDto);
+        model.addAttribute("exam",list);
+        System.out.println("출력문"+list);
+        return list;
     }
 
 
@@ -92,13 +100,13 @@ public class ExamController {
 
     @GetMapping("/excelDown.do")
     public void Excel(HttpServletResponse response,
-                      @ModelAttribute ExamPageDto pageDto)throws IOException {
-        List<ExamGridDto> list=examGridService.list(pageDto);
+                      @ModelAttribute ExamGridDto examGridDto)throws IOException {
+        List<ExamGridDto> list=examGridService.list(examGridDto);
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("examSheet");
         Row row = null;
         Cell cell = null;
-        int rowNum = 0;
+        int rowNum = 1;
 
         // Header
         row = sheet.createRow(rowNum++);
@@ -155,10 +163,6 @@ public class ExamController {
         ExamGridDto examGridDto=examGridService.detail(eId);
         return examGridDto;
     }//모달창 정보 받아오기.
-
-//    @GetMapping("/handler.do")
-//    public void modifyGetter(){
-//    }
 
     @PutMapping("/handler.do")
     public @ResponseBody HandlerDto modify(

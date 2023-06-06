@@ -20,5 +20,7 @@ public class ExamGridDto {
     private String city;
     private String postTime;
     private String gender;
+    private String toTime;
+    private String fromTime;
 
 }

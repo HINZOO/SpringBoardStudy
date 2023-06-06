@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
 public interface ExamGridService {
-    List<ExamGridDto> list(ExamPageDto pageDto);
+    List<ExamGridDto> list(ExamGridDto examGridDto);
     ExamGridDto detail(int eId);
     ExamGridDto idCheck(String uId);
     int register(ExamGridDto examGridDto);

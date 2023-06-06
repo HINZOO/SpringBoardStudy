@@ -9,7 +9,7 @@ import java.util.List;
 @Mapper
 public interface ExamGridMapper {
     //리스트조회 //저장 //삭제
-    List<ExamGridDto> findAll(ExamPageDto pageDto);
+    List<ExamGridDto> findAll(ExamGridDto examGridDto);
     ExamGridDto findByEId(int eId);
     ExamGridDto findByUId(String uId);
     int insertOne(ExamGridDto examGridDto);

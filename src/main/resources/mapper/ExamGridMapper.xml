@@ -9,6 +9,8 @@
         <result column="city" property="city"/>
         <result column="post_time" property="postTime"/>
         <result column="gender" property="gender"/>
+        <result column="toTime" property="toTime"/>
+        <result column="fromTime" property="fromTime"/>
     </resultMap>
     <insert id="insertOne" useGeneratedKeys="true" keyProperty="eId" parameterType="ExamGridDto">
         INSERT INTO exam_grid (u_id,name, nation, city, gender)VALUES(#{uId},#{name},#{nation},#{city},#{gender})
